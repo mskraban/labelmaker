@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Labelmaker: Free Printable Labels for Jars, Pantry and Drawers</title>
+<meta name="description" content="Type a list, pick your label sheet (Avery or plain paper) and print matching labels with icons. Spice, pantry, freezer and workshop presets. Free, offline, exact size.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f6f3ec">
+<link rel="canonical" href="https://labelmaker-xi.vercel.app/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Labelmaker">
+<meta property="og:title" content="Labelmaker: free printable labels for jars, pantry and drawers">
+<meta property="og:description" content="Type a list, pick your sheet, print matching labels with icons. Free and offline.">
+<meta property="og:url" content="https://labelmaker-xi.vercel.app/">
+<meta property="og:image" content="https://labelmaker-xi.vercel.app/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Labelmaker: free printable labels">
+<meta name="twitter:description" content="Type a list, pick your sheet, print matching labels with icons.">
+<meta name="twitter:image" content="https://labelmaker-xi.vercel.app/og.jpg">
+<link rel="stylesheet" href="fonts.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Labelmaker","url":"https://labelmaker-xi.vercel.app/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","description":"Designs and prints labels for spice jars, pantry, freezer and workshop drawers on Avery and plain sheets.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I print labels on Avery sheets?","acceptedAnswer":{"@type":"Answer","text":"Choose your sheet code, then print at 100% scale (not 'fit to page') on the matching sheet. Use the offset controls to nudge the print if it is slightly off."}},{"@type":"Question","name":"Can I use a partly used sheet?","acceptedAnswer":{"@type":"Answer","text":"Yes. Set 'Start at label' to the first free position and Labelmaker leaves the used labels blank."}},{"@type":"Question","name":"Do I need label sheets?","acceptedAnswer":{"@type":"Answer","text":"No. The plain paper layouts print an outline so you can cut the labels out and stick them with tape or glue."}}]}]}</script>
+<style>
+:root { --bg: #f6f3ec; --card: #fff; --ink: #1d2430; --muted: #6b7380; --line: #e4dfd3; --accent: #2a7de1; --radius: 16px; }
+* { box-sizing: border-box; } html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--font-body); }
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -.02em; line-height: 1.1; margin: 0; } p { margin: 0; } a { color: var(--accent); }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 22px; }
+header.top { display: flex; align-items: center; gap: 12px; padding: 16px 0; } header.top b { font: 800 22px var(--font-display); } header.top nav { margin-left: auto; display: flex; gap: 18px; font-size: 14px; } header.top nav a { color: var(--muted); text-decoration: none; } header.top nav a:hover { color: var(--ink); }
+.hero { text-align: center; padding: 14px 0 26px; } .hero h1 { font-size: clamp(32px, 5.4vw, 56px); max-width: 18ch; margin: 0 auto; } .hero h1 em { font-style: normal; color: var(--accent); } .hero p { color: var(--muted); font-size: 18px; max-width: 58ch; margin: 12px auto 0; }
+.app { display: grid; grid-template-columns: 400px 1fr; gap: 22px; align-items: start; } @media (max-width: 980px) { .app { grid-template-columns: 1fr; } }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: 0 12px 34px -26px rgba(0,0,0,.4); }
+.step { font: 700 12.5px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; } .card .step:not(:first-child) { margin-top: 22px; }
+label { display: block; font-weight: 600; font-size: 14px; margin: 12px 0 5px; } label small { color: var(--muted); font-weight: 400; }
+textarea, select, input[type=number], input[type=text] { width: 100%; font: inherit; color: inherit; background: #fdfcf9; border: 1.5px solid var(--line); border-radius: 10px; padding: 9px 11px; } textarea { min-height: 190px; resize: vertical; font-size: 15px; line-height: 1.5; font-family: var(--font-body); }
+textarea:focus, select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+.row { display: flex; gap: 8px; } .row > * { flex: 1; min-width: 0; }
+.hint { color: var(--muted); font-size: 13px; margin-top: 6px; }
+.themes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; } .themes button { border: 2px solid var(--line); border-radius: 10px; background: #fff; padding: 8px 4px; font: 600 12.5px var(--font-body); cursor: pointer; color: var(--ink); } .themes button[aria-pressed=true] { border-color: var(--accent); background: #eef5ff; } .themes i { display: block; height: 16px; border-radius: 5px; margin-bottom: 5px; border: 1px solid rgba(0,0,0,.15); }
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; } .swatches button { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1.5px var(--line); cursor: pointer; } .swatches button[aria-pressed=true] { box-shadow: 0 0 0 2.5px var(--ink); }
+.tog { display: flex; align-items: center; gap: 8px; font-size: 14.5px; margin-top: 10px; cursor: pointer; } .tog input { width: 17px; height: 17px; accent-color: var(--accent); }
+.custom { display: none; background: #f7f4ec; border-radius: 10px; padding: 10px; margin-top: 8px; } .custom.on { display: block; } .custom label { margin-top: 6px; font-size: 12.5px; }
+.btn { font: 600 15px var(--font-body); border: 0; border-radius: 999px; padding: 12px 20px; cursor: pointer; background: #e9e5d9; color: var(--ink); } .btn:hover { filter: brightness(.96); } .btn.primary { background: var(--accent); color: #fff; box-shadow: 0 10px 22px -12px var(--accent); } .btn.sm { padding: 8px 14px; font-size: 13.5px; }
+.bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; } .bar .info { color: var(--muted); font-size: 14px; margin-left: auto; }
+#pages { display: grid; gap: 18px; } .pagecard { background: #d9d5c8; padding: 14px; border-radius: 12px; } .pagecard svg { display: block; width: 100%; height: auto; box-shadow: 0 8px 24px -10px rgba(0,0,0,.4); background: #fff; } .pagecard h3 { font: 600 13px var(--font-mono); color: var(--muted); margin-bottom: 8px; }
+.warn { background: #fff3d6; border: 1px solid #f0d58a; color: #7a5a00; border-radius: 10px; padding: 10px 12px; font-size: 14px; margin-bottom: 12px; display: none; } .warn.on { display: block; }
+section.info { padding: 52px 0 6px; } section.info h2 { font-size: clamp(26px, 4vw, 36px); margin-bottom: 12px; } section.info p, section.info li { color: var(--muted); max-width: 72ch; } section.info ol { padding-left: 20px; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: #fff; margin: 16px 0; } table { border-collapse: collapse; width: 100%; font-size: 14.5px; } th, td { text-align: left; padding: 9px 13px; border-bottom: 1px solid var(--line); } th { font: 600 12px var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: #faf8f2; } tr:last-child td { border: 0; }
+details { border-bottom: 1px solid var(--line); } details summary { cursor: pointer; font: 600 18px var(--font-display); padding: 15px 0; list-style: none; } details summary::-webkit-details-marker { display: none; } details summary::after { content: '+'; float: right; color: var(--accent); font-size: 24px; } details[open] summary::after { content: '–'; } details p { padding: 0 0 16px; }
+footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; }
+.skip { position: absolute; left: -999px; } .skip:focus { left: 8px; top: 8px; background: #fff; padding: 8px; z-index: 9; }
+#printarea { display: none; }
+@media print { body { background: #fff; } body > *:not(#printarea) { display: none !important; } #printarea { display: block; } #printarea svg { display: block; page-break-after: always; break-after: page; } #printarea svg:last-child { page-break-after: auto; break-after: auto; } }
+</style>
+<style id="pagesize">@page { size: 210mm 297mm; margin: 0; }</style>
+</head>
+<body>
+<a class="skip" href="#app">Skip to the label maker</a>
+<div class="wrap">
+<header class="top"><svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#2a7de1"/><path d="M12 22a4 4 0 0 1 4-4h22l14 14-14 14H16a4 4 0 0 1-4-4z" fill="#fff"/><circle cx="21" cy="32" r="3.6" fill="#2a7de1"/><path d="M29 28h10M29 36h7" stroke="#2a7de1" stroke-width="3" stroke-linecap="round"/></svg><b>Labelmaker</b><nav aria-label="Main"><a href="#sheets">Sheet codes</a><a href="#faq">FAQ</a><a href="https://github.com/mskraban/labelmaker">GitHub</a></nav></header>
+<main id="main">
+<section class="hero"><h1>Labels that <em>match</em> your sheets.</h1><p>Type your list. Pick your label sheet, or plain paper. Print jars, drawers and freezer bags in one tidy set, at exactly the right size.</p></section>
+<div class="app" id="app">
+  <div class="card">
+    <p class="step">1 · What to label</p>
+    <label for="preset" style="margin-top:0">Start from a preset</label>
+    <select id="preset"></select>
+    <label for="list">Your labels <small>(one per line · “Name | second line” · “3x Name” repeats)</small></label>
+    <textarea id="list" spellcheck="false"></textarea>
+    <label for="sub">Second line on every label <small>(optional, e.g. “Date: ____”)</small></label>
+    <input type="text" id="sub" maxlength="40" placeholder="">
+
+    <p class="step">2 · Your sheet</p>
+    <select id="sheet" aria-label="Label sheet"></select>
+    <div class="custom" id="customBox"></div>
+    <div class="warn" id="fitwarn">These numbers do not fit on the page. Check the label size, count and margins.</div>
+    <label for="skip">Start at label # <small>(for a partly used sheet)</small></label>
+    <input type="number" id="skip" min="1" max="200" value="1">
+
+    <p class="step">3 · Look</p>
+    <div class="themes" id="themes"></div>
+    <label style="margin-top:14px">Accent colour</label><div class="swatches" id="swatches"></div>
+    <label class="tog"><input type="checkbox" id="icons" checked> Show icons</label>
+    <label class="tog"><input type="checkbox" id="outlines"> Print cutting outlines <small>(for plain paper)</small></label>
+
+    <p class="step">4 · Fine-tune the print <small style="text-transform:none;letter-spacing:0">(optional)</small></p>
+    <div class="row"><div><label style="margin-top:0" for="offx">Shift right (mm)</label><input type="number" id="offx" step="0.1" value="0"></div><div><label style="margin-top:0" for="offy">Shift down (mm)</label><input type="number" id="offy" step="0.1" value="0"></div></div>
+    <p class="hint">Print one test page on plain paper, hold it against a label sheet and nudge until it lines up.</p>
+  </div>
+
+  <div>
+    <div class="bar"><button class="btn primary" id="print" type="button">Print / Save as PDF</button><button class="btn" id="dl" type="button">Download SVG (page 1)</button><span class="info" id="count"></span></div>
+    <div id="pages" aria-live="polite"></div>
+    <p class="hint">Print at <b>100%</b> or “Actual size”, never “Fit to page”. Choose “Save as PDF” in the print dialog to keep a copy.</p>
+  </div>
+</div>
+
+<section class="info" id="sheets"><h2>Supported sheets</h2><p>Pick any of these by code, or enter your own measurements with “Custom sheet…”. Measurements follow the manufacturers' templates; if your pack differs slightly, use the shift controls.</p>
+<!--SHEETS--><div class="tablewrap"><table><thead><tr><th>Sheet</th><th>Paper</th><th>Label size</th><th>Layout</th><th>Per sheet</th></tr></thead><tbody>
+<tr><td>Avery L7160</td><td>A4</td><td>63.5 × 38.1 mm</td><td>3 × 7</td><td>21</td></tr>
+<tr><td>Avery L7161</td><td>A4</td><td>63.5 × 46.6 mm</td><td>3 × 6</td><td>18</td></tr>
+<tr><td>Avery L7162</td><td>A4</td><td>99.1 × 33.9 mm</td><td>2 × 8</td><td>16</td></tr>
+<tr><td>Avery L7163</td><td>A4</td><td>99.1 × 38.1 mm</td><td>2 × 7</td><td>14</td></tr>
+<tr><td>Avery L7164</td><td>A4</td><td>63.5 × 72 mm</td><td>3 × 3</td><td>9</td></tr>
+<tr><td>Avery L7165</td><td>A4</td><td>99.1 × 67.7 mm</td><td>2 × 4</td><td>8</td></tr>
+<tr><td>Avery L7651</td><td>A4</td><td>38.1 × 21.2 mm</td><td>5 × 13</td><td>65</td></tr>
+<tr><td>Avery 5160 (Letter)</td><td>Letter</td><td>66.68 × 25.4 mm</td><td>3 × 10</td><td>30</td></tr>
+<tr><td>Avery 5163 (Letter)</td><td>Letter</td><td>101.6 × 50.8 mm</td><td>2 × 5</td><td>10</td></tr>
+<tr><td>Avery 5164 (Letter)</td><td>Letter</td><td>101.6 × 84.67 mm</td><td>2 × 3</td><td>6</td></tr>
+<tr><td>A4</td><td>A4</td><td>40 × 40 mm (round)</td><td>4 × 6</td><td>24</td></tr>
+<tr><td>A4</td><td>A4</td><td>50 × 50 mm (round)</td><td>3 × 5</td><td>15</td></tr>
+<tr><td>Plain A4</td><td>A4</td><td>65 × 33 mm</td><td>3 × 8</td><td>24</td></tr>
+<tr><td>Plain A4</td><td>A4</td><td>95 × 45 mm</td><td>2 × 6</td><td>12</td></tr>
+<tr><td>Plain Letter</td><td>Letter</td><td>68 × 32 mm</td><td>3 × 8</td><td>24</td></tr>
+</tbody></table></div><!--/SHEETS--></section>
+<section class="info"><h2>Printing tips</h2><ol><li>Set the paper size in the print dialog to match the sheet (A4 or Letter).</li><li>Turn off headers, footers and “fit to page”; use scale 100%.</li><li>Do a test print on plain paper first and hold it to the light against a label sheet.</li><li>For a freezer, use a second line such as “Date: ____” and write the date with a permanent marker.</li></ol></section>
+<section class="info" id="faq"><h2>Questions</h2>
+<details><summary>Is it free and private?</summary><p>Yes. Nothing is uploaded: your list is processed in your browser, and it works offline once loaded.</p></details>
+<details><summary>Do I need to buy label sheets?</summary><p>No. Choose a plain paper grid, switch on cutting outlines, print and cut. Self-adhesive sheets just save the cutting.</p></details>
+<details><summary>Why are my labels slightly misaligned?</summary><p>Printers add small margins of their own. Print at 100% and use the “Shift right / down” fields to correct by a fraction of a millimetre.</p></details>
+<details><summary>Can I use my own sheet size?</summary><p>Yes: choose “Custom sheet…” and enter the label size, how many across and down, and the margins.</p></details>
+<details><summary>What do the icons mean?</summary><p>They are picked from the words on each label (a leaf for herbs, a wheat ear for flour, a snowflake for the freezer). Add “| second line | icon” to a line to force one of the built-in icons.</p></details>
+</section>
+</main>
+<footer><span>© Labelmaker contributors · MIT licence</span><span>Same family: <a href="https://cakecalc.vercel.app">Cakecalc</a> · <a href="https://worldscape-teal.vercel.app">Worldscape</a></span></footer>
+</div>
+<div id="printarea" aria-hidden="true"></div>
+
+<script src="engine.js"></script>
+<script>
+'use strict';
+(() => {
+const L = Labelmaker, $ = (id) => document.getElementById(id);
+const st = { theme: 'classic', accent: null, sheet: 'l7160' };
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+function init() {
+  $('preset').innerHTML = Object.entries(L.PRESETS).map(([id, p]) => `<option value="${id}">${p.name}</option>`).join('') + '<option value="">Start empty</option>';
+  $('sheet').innerHTML = L.SHEETS.map((s) => `<option value="${s.id}">${s.name}</option>`).join('') + '<option value="custom">Custom sheet…</option>';
+  $('themes').innerHTML = L.THEMES.map((t) => `<button type="button" data-id="${t.id}" aria-pressed="false"><i style="background:${t.bg};border-color:${t.accent}"></i>${t.name}</button>`).join('');
+  $('swatches').innerHTML = L.ACCENTS.map((c) => `<button type="button" data-c="${c}" style="background:${c}" aria-label="Accent ${c}" aria-pressed="false"></button>`).join('') + '<button type="button" data-c="" aria-label="Theme default" title="Theme default" style="background:conic-gradient(#d9466f,#e08a1e,#5b8f3a,#2a7de1,#7a4fc0,#d9466f)" aria-pressed="true"></button>';
+  $('customBox').innerHTML = `<div class="row"><div><label>Paper</label><select id="cPage"><option value="a4">A4</option><option value="letter">Letter</option></select></div><div><label>Shape</label><select id="cShape"><option value="rect">Rectangle</option><option value="round">Round</option></select></div></div>
+  <div class="row"><div><label>Label width (mm)</label><input type="number" id="cW" value="63.5" step="any"></div><div><label>Label height (mm)</label><input type="number" id="cH" value="38.1" step="any"></div></div>
+  <div class="row"><div><label>Across</label><input type="number" id="cCols" value="3" min="1"></div><div><label>Down</label><input type="number" id="cRows" value="7" min="1"></div></div>
+  <div class="row"><div><label>Left margin (mm)</label><input type="number" id="cLeft" value="7.2" step="any"></div><div><label>Top margin (mm)</label><input type="number" id="cTop" value="15.1" step="any"></div></div>
+  <div class="row"><div><label>Gap across (mm)</label><input type="number" id="cGx" value="2.5" step="any"></div><div><label>Gap down (mm)</label><input type="number" id="cGy" value="0" step="any"></div></div>`;
+}
+function loadPreset(id) { const p = L.PRESETS[id]; if (!p) return; $('list').value = p.items.join('\n'); $('sub').value = p.sub || ''; setTheme(p.theme); }
+function setTheme(id) { st.theme = id; $('themes').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === id))); }
+function currentSheet() {
+  if ($('sheet').value !== 'custom') return L.sheetById($('sheet').value);
+  const n = (id) => parseFloat($(id).value);
+  return L.customSheet({ page: $('cPage').value, w: n('cW'), h: n('cH'), cols: Math.max(1, n('cCols') | 0), rows: Math.max(1, n('cRows') | 0), left: n('cLeft'), top: n('cTop'), gapX: n('cGx') || 0, gapY: n('cGy') || 0, shape: $('cShape').value });
+}
+let pages = [];
+function draw() {
+  $('customBox').classList.toggle('on', $('sheet').value === 'custom');
+  const sheet = currentSheet(), labels = L.parseList($('list').value, { sub: $('sub').value.trim() }).slice(0, 600);
+  const ok = [sheet.w, sheet.h, sheet.left, sheet.top, sheet.px, sheet.py].every((x) => isFinite(x)) && L.sheetFits(sheet);
+  $('fitwarn').classList.toggle('on', !ok);
+  if (!ok) { $('pages').innerHTML = ''; $('count').textContent = ''; return; }
+  const skip = Math.max(0, (parseInt($('skip').value, 10) || 1) - 1);
+  pages = L.render(sheet, labels, { theme: st.theme, accent: st.accent || undefined, offsetX: parseFloat($('offx').value) || 0, offsetY: parseFloat($('offy').value) || 0, outlines: $('outlines').checked, icons: $('icons').checked, skip, showEmpty: false });
+  $('pages').innerHTML = pages.map((svg, i) => `<div class="pagecard"><h3>Page ${i + 1} of ${pages.length} · ${sheet.page[0] > 211 ? 'Letter' : 'A4'}</h3>${svg}</div>`).join('');
+  $('count').textContent = `${labels.length} label${labels.length === 1 ? '' : 's'} · ${pages.length} sheet${pages.length === 1 ? '' : 's'} (${L.perSheet(sheet)} per sheet)`;
+  document.getElementById('pagesize').textContent = `@page { size: ${sheet.page[0]}mm ${sheet.page[1]}mm; margin: 0; }`;
+  $('printarea').innerHTML = pages.join('');
+  store.set('lm', JSON.stringify({ list: $('list').value, sub: $('sub').value, sheet: $('sheet').value, theme: st.theme, accent: st.accent, icons: $('icons').checked }));
+}
+function wire() {
+  $('preset').addEventListener('change', () => { loadPreset($('preset').value); draw(); });
+  for (const id of ['list', 'sub', 'sheet', 'skip', 'icons', 'outlines', 'offx', 'offy']) $(id).addEventListener('input', draw);
+  $('customBox').addEventListener('input', draw);
+  $('themes').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { setTheme(b.dataset.id); draw(); } });
+  $('swatches').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; st.accent = b.dataset.c || null; $('swatches').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(); });
+  $('print').onclick = () => window.print();
+  $('dl').onclick = () => { if (!pages[0]) return; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([pages[0]], { type: 'image/svg+xml' })); a.download = 'labels-page-1.svg'; document.body.appendChild(a); a.click(); a.remove(); };
+}
+init(); wire();
+let saved = null; try { saved = JSON.parse(store.get('lm') || 'null'); } catch (e) {}
+if (saved && saved.list) { $('list').value = saved.list; $('sub').value = saved.sub || ''; if (L.sheetById(saved.sheet)) $('sheet').value = saved.sheet; setTheme(saved.theme || 'classic'); st.accent = saved.accent || null; $('icons').checked = saved.icons !== false; document.querySelectorAll('#swatches button').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.c || null) === st.accent))); }
+else { $('preset').value = 'spices'; loadPreset('spices'); }
+draw();
+})();
+</script>
+</body>
+</html>
