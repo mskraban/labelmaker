@@ -7,7 +7,7 @@
 **Labels that match your sheets.**<br>
 Type a list, pick your label sheet (Avery or plain paper) and print matching labels with icons, at exactly the right size.
 
-[**Try it live →**](https://labelmaker-xi.vercel.app) · [Report an issue](https://github.com/mskraban/labelmaker/issues)
+[**Try it live →**](https://labelmaker-ruby.vercel.app) · [Report an issue](https://github.com/mskraban/labelmaker/issues)
 
 [![CI](https://github.com/mskraban/labelmaker/actions/workflows/ci.yml/badge.svg)](https://github.com/mskraban/labelmaker/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2a7de1.svg)](LICENSE)

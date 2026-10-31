@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://labelmaker-xi.vercel.app/sitemap.xml
+Sitemap: https://labelmaker-ruby.vercel.app/sitemap.xml
