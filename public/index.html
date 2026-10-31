@@ -54,6 +54,16 @@ footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--lin
 #printarea { display: none; }
 @media print { body { background: #fff; } body > *:not(#printarea) { display: none !important; } #printarea { display: block; } #printarea svg { display: block; page-break-after: always; break-after: page; } #printarea svg:last-child { page-break-after: auto; break-after: auto; } }
 </style>
+<style>
+.themes { grid-template-columns: repeat(3, 1fr) !important; max-height: 330px; overflow-y: auto; padding: 2px; } .themes button { padding: 6px 4px !important; font-size: 12px !important; } .themes i { height: 26px !important; display: grid !important; place-items: center; font: 700 11px var(--font-body); font-style: normal; color: inherit; }
+.fontprev { margin-top: 8px; padding: 10px 12px; background: #fdfcf9; border: 1.5px dashed var(--line); border-radius: 10px; font-size: 22px; line-height: 1.2; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.range { display: flex; align-items: center; gap: 10px; } .range input[type=range] { flex: 1; accent-color: var(--accent); } .range output { width: 48px; text-align: right; font: 600 13px var(--font-mono); color: var(--muted); }
+.seg { display: flex; flex-wrap: wrap; border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; } .seg button { flex: 1 1 33%; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fff; padding: 8px 4px; font: 600 12.5px var(--font-body); color: var(--muted); cursor: pointer; } .seg button[aria-pressed=true] { background: var(--accent); color: #fff; } .seg button:disabled { opacity: .4; cursor: not-allowed; }
+.lock { color: #7a5a00; background: #fff3d6; border-radius: 8px; padding: 6px 10px; font-size: 12.5px; margin-top: 6px; display: none; } .lock.on { display: block; }
+.dates .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .dates[hidden], .dsub[hidden] { display: none; }
+.busy { opacity: .55; transition: opacity .15s; } .themes.gray button i, .swatches.off { filter: grayscale(1); } .swatches.off { opacity: .35; pointer-events: none; }
+</style>
+
 <style id="pagesize">@page { size: 210mm 297mm; margin: 0; }</style>
 </head>
 <body>
@@ -61,7 +71,7 @@ footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--lin
 <div class="wrap">
 <header class="top"><svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#2a7de1"/><path d="M12 22a4 4 0 0 1 4-4h22l14 14-14 14H16a4 4 0 0 1-4-4z" fill="#fff"/><circle cx="21" cy="32" r="3.6" fill="#2a7de1"/><path d="M29 28h10M29 36h7" stroke="#2a7de1" stroke-width="3" stroke-linecap="round"/></svg><b>Labelmaker</b><nav aria-label="Main"><a href="#sheets">Sheet codes</a><a href="#faq">FAQ</a><a href="https://github.com/mskraban/labelmaker">GitHub</a></nav></header>
 <main id="main">
-<section class="hero"><h1>Labels that <em>match</em> your sheets.</h1><p>Type your list. Pick your label sheet, or plain paper. Print jars, drawers and freezer bags in one tidy set, at exactly the right size.</p></section>
+<section class="hero"><h1>Labels that <em>match</em> your sheets.</h1><p>Type your list. Pick your label sheet, or plain paper. Choose a look, a font, a shape and a date, then print jars, drawers and freezer bags in one tidy set, at exactly the right size, in colour or black and white.</p></section>
 <div class="app" id="app">
   <div class="card">
     <p class="step">1 · What to label</p>
@@ -69,31 +79,50 @@ footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--lin
     <select id="preset"></select>
     <label for="list">Your labels <small>(one per line · “Name | second line” · “3x Name” repeats)</small></label>
     <textarea id="list" spellcheck="false"></textarea>
-    <label for="sub">Second line on every label <small>(optional, e.g. “Date: ____”)</small></label>
+    <label for="sub">Second line on every label <small>(optional)</small></label>
     <input type="text" id="sub" maxlength="40" placeholder="">
 
-    <p class="step">2 · Your sheet</p>
+    <p class="step">2 · Your sheet and shape</p>
     <select id="sheet" aria-label="Label sheet"></select>
     <div class="custom" id="customBox"></div>
     <div class="warn" id="fitwarn">These numbers do not fit on the page. Check the label size, count and margins.</div>
+    <label>Label shape <small>(plain paper: easier to cut round or square)</small></label>
+    <div class="seg" id="shape" role="group" aria-label="Label shape"></div>
+    <div class="lock" id="shapelock">This sheet is die-cut, so the labels keep the sheet's shape. Choose a “Plain A4” sheet to change the shape.</div>
     <label for="skip">Start at label # <small>(for a partly used sheet)</small></label>
     <input type="number" id="skip" min="1" max="200" value="1">
 
     <p class="step">3 · Look</p>
     <div class="themes" id="themes"></div>
     <label style="margin-top:14px">Accent colour</label><div class="swatches" id="swatches"></div>
+    <label for="font">Font</label>
+    <select id="font"></select>
+    <div class="fontprev" id="fontprev" aria-hidden="true">Cinnamon · Žafran · 0123</div>
+    <label for="size">Text size</label>
+    <div class="range"><input type="range" id="size" min="60" max="140" value="100" step="5"><output id="sizeout">100%</output></div>
+    <label for="case">Letters</label>
+    <select id="case"></select>
+    <label class="tog"><input type="checkbox" id="mono"> Black &amp; white <small>(no colour ink: white paper, black print)</small></label>
     <label class="tog"><input type="checkbox" id="icons" checked> Show icons</label>
     <label class="tog"><input type="checkbox" id="outlines"> Print cutting outlines <small>(for plain paper)</small></label>
 
-    <p class="step">4 · Fine-tune the print <small style="text-transform:none;letter-spacing:0">(optional)</small></p>
+    <p class="step">4 · Date</p>
+    <select id="dmode" aria-label="Date on the labels"><option value="none">No date</option><option value="write">Write-in line (Date: ______)</option><option value="today">Today's date</option><option value="pick">A date I choose</option><option value="expiry">Packed today + use-by date</option><option value="both">Two write-in lines (packed / use by)</option></select>
+    <div class="dates" id="dbox" hidden>
+      <div class="row2"><div><label for="dprefix">Text before the date</label><input type="text" id="dprefix" maxlength="16" value="Packed"></div><div id="dfmtbox"><label for="dfmt">Format</label><select id="dfmt"><option value="dmy.">31.10.2026</option><option value="dmy/">31/10/2026</option><option value="mdy/">10/31/2026</option><option value="iso">2026-10-31</option><option value="long">31 Oct 2026</option><option value="short">31 Oct</option><option value="month">Oct 2026</option></select></div></div>
+      <div class="row2"><div id="dpickbox"><label for="dpick">Date</label><input type="date" id="dpick"></div><div class="dsub" id="dexpbox" hidden><label for="dexp">Use by after</label><div class="row"><input type="number" id="dexp" min="1" max="999" value="3"><select id="dunit"><option value="days">days</option><option value="weeks">weeks</option><option value="months" selected>months</option><option value="years">years</option></select></div></div></div>
+      <div class="dsub" id="dp2box" hidden><label for="dprefix2">Text before the use-by date</label><input type="text" id="dprefix2" maxlength="16" value="Use by"></div>
+    </div>
+
+    <p class="step">5 · Fine-tune the print <small style="text-transform:none;letter-spacing:0">(optional)</small></p>
     <div class="row"><div><label style="margin-top:0" for="offx">Shift right (mm)</label><input type="number" id="offx" step="0.1" value="0"></div><div><label style="margin-top:0" for="offy">Shift down (mm)</label><input type="number" id="offy" step="0.1" value="0"></div></div>
     <p class="hint">Print one test page on plain paper, hold it against a label sheet and nudge until it lines up.</p>
   </div>
 
   <div>
-    <div class="bar"><button class="btn primary" id="print" type="button">Print / Save as PDF</button><button class="btn" id="dl" type="button">Download SVG (page 1)</button><span class="info" id="count"></span></div>
+    <div class="bar"><button class="btn primary" id="print" type="button">Print / Save as PDF</button><button class="btn" id="dlpng" type="button">Download PNG</button><button class="btn" id="dl" type="button">Download SVG</button><span class="info" id="count"></span></div>
     <div id="pages" aria-live="polite"></div>
-    <p class="hint">Print at <b>100%</b> or “Actual size”, never “Fit to page”. Choose “Save as PDF” in the print dialog to keep a copy.</p>
+    <p class="hint">Print at <b>100%</b> or “Actual size”, never “Fit to page”. Choose “Save as PDF” in the print dialog to keep a copy. PNG and SVG downloads (page 1) include the font.</p>
   </div>
 </div>
 
@@ -109,8 +138,11 @@ footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--lin
 <tr><td>Avery 5160 (Letter)</td><td>Letter</td><td>66.68 × 25.4 mm</td><td>3 × 10</td><td>30</td></tr>
 <tr><td>Avery 5163 (Letter)</td><td>Letter</td><td>101.6 × 50.8 mm</td><td>2 × 5</td><td>10</td></tr>
 <tr><td>Avery 5164 (Letter)</td><td>Letter</td><td>101.6 × 84.67 mm</td><td>2 × 3</td><td>6</td></tr>
-<tr><td>A4</td><td>A4</td><td>40 × 40 mm (round)</td><td>4 × 6</td><td>24</td></tr>
-<tr><td>A4</td><td>A4</td><td>50 × 50 mm (round)</td><td>3 × 5</td><td>15</td></tr>
+<tr><td>Plain A4</td><td>A4</td><td>40 × 40 mm (round)</td><td>4 × 6</td><td>24</td></tr>
+<tr><td>Plain A4</td><td>A4</td><td>50 × 50 mm (round)</td><td>3 × 5</td><td>15</td></tr>
+<tr><td>Plain A4</td><td>A4</td><td>45 × 45 mm</td><td>4 × 5</td><td>20</td></tr>
+<tr><td>Plain A4</td><td>A4</td><td>45 × 30 mm</td><td>4 × 8</td><td>32</td></tr>
+<tr><td>Plain A4</td><td>A4</td><td>90 × 60 mm</td><td>2 × 4</td><td>8</td></tr>
 <tr><td>Plain A4</td><td>A4</td><td>65 × 33 mm</td><td>3 × 8</td><td>24</td></tr>
 <tr><td>Plain A4</td><td>A4</td><td>95 × 45 mm</td><td>2 × 6</td><td>12</td></tr>
 <tr><td>Plain Letter</td><td>Letter</td><td>68 × 32 mm</td><td>3 × 8</td><td>24</td></tr>
@@ -120,12 +152,16 @@ footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--lin
 <details><summary>Is it free and private?</summary><p>Yes. Nothing is uploaded: your list is processed in your browser, and it works offline once loaded.</p></details>
 <details><summary>Do I need to buy label sheets?</summary><p>No. Choose a plain paper grid, switch on cutting outlines, print and cut. Self-adhesive sheets just save the cutting.</p></details>
 <details><summary>Why are my labels slightly misaligned?</summary><p>Printers add small margins of their own. Print at 100% and use the “Shift right / down” fields to correct by a fraction of a millimetre.</p></details>
+<details><summary>Can I make round or square labels?</summary><p>Yes. Pick one of the “Plain A4” sheets, then choose Circle, Square, Oval, Pill or Rounded rectangle under “Label shape”. Switch on cutting outlines and cut along the line. Die-cut sheets (Avery and similar) keep the shape of the sticker.</p></details>
+<details><summary>I do not have colour ink. Can I print black and white?</summary><p>Yes: tick “Black &amp; white”. The preview and the print use white paper and black ink, dark themes are inverted, and patterns become light grey.</p></details>
+<details><summary>Can I change the font or add a date?</summary><p>Yes. Choose from 16 fonts (including handwriting, typewriter and marker styles) and adjust size and capitals. Under “Date” you can add a write-in line, today's date, a date you pick, or a packed and use-by pair such as “+3 months”.</p></details>
 <details><summary>Can I use my own sheet size?</summary><p>Yes: choose “Custom sheet…” and enter the label size, how many across and down, and the margins.</p></details>
 <details><summary>What do the icons mean?</summary><p>They are picked from the words on each label (a leaf for herbs, a wheat ear for flour, a snowflake for the freezer). Add “| second line | icon” to a line to force one of the built-in icons.</p></details>
 </section>
 </main>
 <footer><span>© Labelmaker contributors · MIT licence</span><span>Same family: <a href="https://cakecalc-sigma.vercel.app">Cakecalc</a> · <a href="https://worldscape-teal.vercel.app">Worldscape</a></span></footer>
 </div>
+
 <div id="printarea" aria-hidden="true"></div>
 
 <script src="engine.js"></script>
@@ -133,54 +169,117 @@ footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--lin
 'use strict';
 (() => {
 const L = Labelmaker, $ = (id) => document.getElementById(id);
-const st = { theme: 'classic', accent: null, sheet: 'l7160' };
+const st = { theme: 'classic', accent: null, shape: 'sheet' };
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+const lang = navigator.language || 'en';
+const RANGE = { latin: 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD', ext: 'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF' };
+
+/* real text measurement: the engine asks the browser how wide each string really is in the chosen font */
+const mctx = document.createElement('canvas').getContext('2d'), mcache = new Map();
+L.setMeasurer((str, fontId, bold) => { const k = fontId + (bold ? 'b' : 'l') + '|' + str; let w = mcache.get(k); if (w === undefined) { const f = L.fontById(fontId); mctx.font = `${bold ? f.bold : f.light} 100px "${f.family}"`; w = mctx.measureText(str).width / 100; mcache.set(k, w); } return w; });
+const activeFont = () => $('font').value || L.themeById(st.theme).font;
+async function ensureFont(sample) { const f = L.fontById(activeFont()); try { await Promise.all([f.bold, f.light].map((w) => document.fonts.load(`${w} 20px "${f.family}"`, sample))); } catch (e) {} mcache.clear(); }
 
 function init() {
   $('preset').innerHTML = Object.entries(L.PRESETS).map(([id, p]) => `<option value="${id}">${p.name}</option>`).join('') + '<option value="">Start empty</option>';
-  $('sheet').innerHTML = L.SHEETS.map((s) => `<option value="${s.id}">${s.name}</option>`).join('') + '<option value="custom">Custom sheet…</option>';
-  $('themes').innerHTML = L.THEMES.map((t) => `<button type="button" data-id="${t.id}" aria-pressed="false"><i style="background:${t.bg};border-color:${t.accent}"></i>${t.name}</button>`).join('');
+  $('sheet').innerHTML = '<optgroup label="Avery and similar sheets">' + L.SHEETS.filter((s) => !s.plain).map((s) => `<option value="${s.id}">${s.name}</option>`).join('') + '</optgroup><optgroup label="Plain paper: print and cut">' + L.SHEETS.filter((s) => s.plain).map((s) => `<option value="${s.id}">${s.name}</option>`).join('') + '</optgroup><option value="custom">Custom sheet…</option>';
+  $('themes').innerHTML = L.THEMES.map((t) => `<button type="button" data-id="${t.id}" aria-pressed="false" title="${t.name}"><i style="background:${t.bg};color:${t.fg};border:2px solid ${t.accent}">Aa</i>${t.name}</button>`).join('');
   $('swatches').innerHTML = L.ACCENTS.map((c) => `<button type="button" data-c="${c}" style="background:${c}" aria-label="Accent ${c}" aria-pressed="false"></button>`).join('') + '<button type="button" data-c="" aria-label="Theme default" title="Theme default" style="background:conic-gradient(#d9466f,#e08a1e,#5b8f3a,#2a7de1,#7a4fc0,#d9466f)" aria-pressed="true"></button>';
-  $('customBox').innerHTML = `<div class="row"><div><label>Paper</label><select id="cPage"><option value="a4">A4</option><option value="letter">Letter</option></select></div><div><label>Shape</label><select id="cShape"><option value="rect">Rectangle</option><option value="round">Round</option></select></div></div>
+  $('font').innerHTML = '<option value="">Theme default</option>' + L.FONT_LIST.map((f) => `<option value="${f.id}">${f.name} · ${f.kind}</option>`).join('');
+  $('case').innerHTML = L.CASES.map(([v, n]) => `<option value="${v}">${n}</option>`).join('');
+  $('shape').innerHTML = L.SHAPES.map(([v, n]) => `<button type="button" data-v="${v}" aria-pressed="${v === 'sheet'}">${n}</button>`).join('');
+  $('customBox').innerHTML = `<div class="row"><div><label>Paper</label><select id="cPage"><option value="a4">A4</option><option value="letter">Letter</option></select></div><div></div></div>
   <div class="row"><div><label>Label width (mm)</label><input type="number" id="cW" value="63.5" step="any"></div><div><label>Label height (mm)</label><input type="number" id="cH" value="38.1" step="any"></div></div>
   <div class="row"><div><label>Across</label><input type="number" id="cCols" value="3" min="1"></div><div><label>Down</label><input type="number" id="cRows" value="7" min="1"></div></div>
   <div class="row"><div><label>Left margin (mm)</label><input type="number" id="cLeft" value="7.2" step="any"></div><div><label>Top margin (mm)</label><input type="number" id="cTop" value="15.1" step="any"></div></div>
   <div class="row"><div><label>Gap across (mm)</label><input type="number" id="cGx" value="2.5" step="any"></div><div><label>Gap down (mm)</label><input type="number" id="cGy" value="0" step="any"></div></div>`;
+  $('dpick').value = new Date().toISOString().slice(0, 10);
 }
 function loadPreset(id) { const p = L.PRESETS[id]; if (!p) return; $('list').value = p.items.join('\n'); $('sub').value = p.sub || ''; setTheme(p.theme); }
 function setTheme(id) { st.theme = id; $('themes').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === id))); }
 function currentSheet() {
   if ($('sheet').value !== 'custom') return L.sheetById($('sheet').value);
   const n = (id) => parseFloat($(id).value);
-  return L.customSheet({ page: $('cPage').value, w: n('cW'), h: n('cH'), cols: Math.max(1, n('cCols') | 0), rows: Math.max(1, n('cRows') | 0), left: n('cLeft'), top: n('cTop'), gapX: n('cGx') || 0, gapY: n('cGy') || 0, shape: $('cShape').value });
+  return L.customSheet({ page: $('cPage').value, w: n('cW'), h: n('cH'), cols: Math.max(1, n('cCols') | 0), rows: Math.max(1, n('cRows') | 0), left: n('cLeft'), top: n('cTop'), gapX: n('cGx') || 0, gapY: n('cGy') || 0 });
 }
-let pages = [];
-function draw() {
+function fmtDate(d, fmt) {
+  const o = { long: { day: 'numeric', month: 'short', year: 'numeric' }, short: { day: 'numeric', month: 'short' }, month: { month: 'short', year: 'numeric' } }[fmt];
+  try { return o ? d.toLocaleDateString(lang, o) : L.formatDate(d, fmt); } catch (e) { return L.formatDate(d, fmt); }
+}
+function dateLines() {
+  const mode = $('dmode').value, fmt = $('dfmt').value, p1 = $('dprefix').value.trim(), p2 = $('dprefix2').value.trim(), join = (p, d) => (p ? p + ' ' : '') + d;
+  const base = mode === 'pick' && $('dpick').value ? new Date($('dpick').value + 'T12:00:00') : new Date();
+  if (mode === 'write') return [{ type: 'write', label: p1 || 'Date' }];
+  if (mode === 'both') return [{ type: 'write', label: p1 || 'Packed' }, { type: 'write', label: p2 || 'Use by' }];
+  if (mode === 'today' || mode === 'pick') return [{ type: 'text', text: join(p1, fmtDate(base, fmt)) }];
+  if (mode === 'expiry') { const n = Math.max(1, parseInt($('dexp').value, 10) || 1); return [{ type: 'text', text: join(p1, fmtDate(base, fmt)) }, { type: 'text', text: join(p2, fmtDate(L.addTime(base, n, $('dunit').value), fmt)) }]; }
+  return [];
+}
+function syncControls(sheet) {
+  const mode = $('dmode').value;
+  $('dbox').hidden = mode === 'none';
+  $('dfmtbox').hidden = mode === 'write' || mode === 'both'; $('dpickbox').hidden = mode !== 'pick'; $('dexpbox').hidden = mode !== 'expiry'; $('dp2box').hidden = mode !== 'expiry' && mode !== 'both';
+  $('dprefix').closest('div').querySelector('label').textContent = mode === 'write' ? 'Word before the line' : 'Text before the date';
+  const plain = !!(sheet && sheet.plain);
+  $('shape').querySelectorAll('button').forEach((b) => (b.disabled = !plain && b.dataset.v !== 'sheet'));
+  $('shapelock').classList.toggle('on', !plain);
   $('customBox').classList.toggle('on', $('sheet').value === 'custom');
-  const sheet = currentSheet(), labels = L.parseList($('list').value, { sub: $('sub').value.trim() }).slice(0, 600);
+  const f = L.fontById(activeFont()); $('fontprev').style.fontFamily = f.stack; $('fontprev').style.fontWeight = f.bold;
+  $('sizeout').textContent = $('size').value + '%';
+  $('themes').classList.toggle('gray', $('mono').checked); $('swatches').classList.toggle('off', $('mono').checked);
+}
+let pages = [], seq = 0;
+async function draw() {
+  const my = ++seq, sheet = currentSheet(), labels = L.parseList($('list').value, { sub: $('sub').value.trim() }).slice(0, 600);
+  syncControls(sheet);
   const ok = [sheet.w, sheet.h, sheet.left, sheet.top, sheet.px, sheet.py].every((x) => isFinite(x)) && L.sheetFits(sheet);
   $('fitwarn').classList.toggle('on', !ok);
   if (!ok) { $('pages').innerHTML = ''; $('count').textContent = ''; return; }
+  $('pages').classList.add('busy');
+  await ensureFont($('list').value + $('sub').value + 'Date 0123456789.,/-: ' + $('dprefix').value + $('dprefix2').value);
+  if (my !== seq) return;
   const skip = Math.max(0, (parseInt($('skip').value, 10) || 1) - 1);
-  pages = L.render(sheet, labels, { theme: st.theme, accent: st.accent || undefined, offsetX: parseFloat($('offx').value) || 0, offsetY: parseFloat($('offy').value) || 0, outlines: $('outlines').checked, icons: $('icons').checked, skip, showEmpty: false });
+  pages = L.render(sheet, labels, { theme: st.theme, accent: st.accent || undefined, mono: $('mono').checked, font: $('font').value || undefined, sizeScale: parseInt($('size').value, 10) / 100, caseMode: $('case').value, shape: st.shape, dates: dateLines(), offsetX: parseFloat($('offx').value) || 0, offsetY: parseFloat($('offy').value) || 0, outlines: $('outlines').checked, icons: $('icons').checked, skip });
   $('pages').innerHTML = pages.map((svg, i) => `<div class="pagecard"><h3>Page ${i + 1} of ${pages.length} · ${sheet.page[0] > 211 ? 'Letter' : 'A4'}</h3>${svg}</div>`).join('');
+  $('pages').classList.remove('busy');
   $('count').textContent = `${labels.length} label${labels.length === 1 ? '' : 's'} · ${pages.length} sheet${pages.length === 1 ? '' : 's'} (${L.perSheet(sheet)} per sheet)`;
   document.getElementById('pagesize').textContent = `@page { size: ${sheet.page[0]}mm ${sheet.page[1]}mm; margin: 0; }`;
   $('printarea').innerHTML = pages.join('');
-  store.set('lm', JSON.stringify({ list: $('list').value, sub: $('sub').value, sheet: $('sheet').value, theme: st.theme, accent: st.accent, icons: $('icons').checked }));
+  store.set('lm2', JSON.stringify({ list: $('list').value, sub: $('sub').value, sheet: $('sheet').value, theme: st.theme, accent: st.accent, icons: $('icons').checked, mono: $('mono').checked, font: $('font').value, size: $('size').value, case: $('case').value, shape: st.shape }));
 }
+
+/* exports: the font is embedded so the file looks right anywhere */
+async function embedCss() {
+  const f = L.fontById(activeFont()), parts = [];
+  for (const file of f.files) {
+    const buf = await (await fetch('fonts/' + file)).arrayBuffer(); let bin = ''; const u8 = new Uint8Array(buf); for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+    parts.push(`@font-face{font-family:'${f.family}';font-weight:${f.var};src:url(data:font/woff2;base64,${btoa(bin)}) format('woff2');unicode-range:${file.includes('latin-ext') ? RANGE.ext : RANGE.latin}}`);
+  }
+  return `<style>${parts.join('')}</style>`;
+}
+async function pageWithFont(i) { const sheet = currentSheet(), labels = L.parseList($('list').value, { sub: $('sub').value.trim() }).slice(0, 600), skip = Math.max(0, (parseInt($('skip').value, 10) || 1) - 1), slots = L.layout(sheet, labels.length, skip)[i];
+  return { sheet, svg: L.pageSvg(sheet, slots, labels, { theme: st.theme, accent: st.accent || undefined, mono: $('mono').checked, font: $('font').value || undefined, sizeScale: parseInt($('size').value, 10) / 100, caseMode: $('case').value, shape: st.shape, dates: dateLines(), offsetX: parseFloat($('offx').value) || 0, offsetY: parseFloat($('offy').value) || 0, outlines: $('outlines').checked, icons: $('icons').checked, embed: await embedCss() }) }; }
+function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+
 function wire() {
   $('preset').addEventListener('change', () => { loadPreset($('preset').value); draw(); });
-  for (const id of ['list', 'sub', 'sheet', 'skip', 'icons', 'outlines', 'offx', 'offy']) $(id).addEventListener('input', draw);
+  for (const id of ['list', 'sub', 'sheet', 'skip', 'icons', 'mono', 'outlines', 'offx', 'offy', 'font', 'size', 'case', 'dmode', 'dprefix', 'dprefix2', 'dfmt', 'dpick', 'dexp', 'dunit']) $(id).addEventListener('input', draw);
   $('customBox').addEventListener('input', draw);
   $('themes').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { setTheme(b.dataset.id); draw(); } });
   $('swatches').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; st.accent = b.dataset.c || null; $('swatches').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(); });
+  $('shape').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b || b.disabled) return; st.shape = b.dataset.v; $('shape').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(); });
   $('print').onclick = () => window.print();
-  $('dl').onclick = () => { if (!pages[0]) return; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([pages[0]], { type: 'image/svg+xml' })); a.download = 'labels-page-1.svg'; document.body.appendChild(a); a.click(); a.remove(); };
+  $('dl').onclick = async () => { if (!pages[0]) return; const { svg } = await pageWithFont(0); download(new Blob([svg], { type: 'image/svg+xml' }), 'labels-page-1.svg'); };
+  $('dlpng').onclick = async () => {
+    if (!pages[0]) return; const { sheet, svg } = await pageWithFont(0), k = 300 / 25.4, W = Math.round(sheet.page[0] * k), H = Math.round(sheet.page[1] * k);
+    const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' })), img = new Image();
+    img.onload = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); x.drawImage(img, 0, 0, W, H); URL.revokeObjectURL(url); c.toBlob((b) => download(b, 'labels-page-1.png'), 'image/png'); };
+    img.src = url;
+  };
 }
 init(); wire();
-let saved = null; try { saved = JSON.parse(store.get('lm') || 'null'); } catch (e) {}
-if (saved && saved.list) { $('list').value = saved.list; $('sub').value = saved.sub || ''; if (L.sheetById(saved.sheet)) $('sheet').value = saved.sheet; setTheme(saved.theme || 'classic'); st.accent = saved.accent || null; $('icons').checked = saved.icons !== false; document.querySelectorAll('#swatches button').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.c || null) === st.accent))); }
+let saved = null; try { saved = JSON.parse(store.get('lm2') || 'null'); } catch (e) {}
+if (saved && saved.list) { $('list').value = saved.list; $('sub').value = saved.sub || ''; if (L.sheetById(saved.sheet)) $('sheet').value = saved.sheet; setTheme(L.themeById(saved.theme).id); st.accent = saved.accent || null; $('icons').checked = saved.icons !== false; $('mono').checked = !!saved.mono; $('font').value = saved.font || ''; $('size').value = saved.size || 100; $('case').value = saved.case || 'theme'; st.shape = saved.shape || 'sheet'; $('shape').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === st.shape))); document.querySelectorAll('#swatches button').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.c || null) === st.accent))); }
 else { $('preset').value = 'spices'; loadPreset('spices'); }
 draw();
 })();

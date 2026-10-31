@@ -13,7 +13,8 @@ npm run dev      # http://localhost:3000
 ## Good first contributions
 
 - More sheet formats (add them to `SHEETS` in `public/engine.js`; the tests check that they fit the page).
-- More themes and icons (24×24 stroke paths).
+- More themes, fonts (`scripts/fetch-fonts.js`) and icons (24×24 stroke paths).
+- Run `npm run check-fit` (needs Playwright) after changing layout code: it fails if any text leaves its label.
 - More presets: school supplies, medicine cabinet, baby gear, shop stock rooms.
 - Translations.
 

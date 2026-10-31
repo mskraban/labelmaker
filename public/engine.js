@@ -22,33 +22,80 @@
     S('us5160', 'Avery 5160 (Letter) · 2⅝ × 1″ · 30 labels', LETTER, 66.68, 25.4, 3, 10, 4.76, 12.7, 69.85, 25.4),
     S('us5163', 'Avery 5163 (Letter) · 4 × 2″ · 10 labels', LETTER, 101.6, 50.8, 2, 5, 4.76, 12.7, 104.78, 50.8),
     S('us5164', 'Avery 5164 (Letter) · 4 × 3⅓″ · 6 labels', LETTER, 101.6, 84.67, 2, 3, 4.76, 12.7, 104.78, 84.67),
-    S('a4-round-40', 'A4 · round 40 mm · 24 labels', A4, 40, 40, 4, 6, 15, 18.5, 45, 45, { shape: 'round' }),
-    S('a4-round-50', 'A4 · round 50 mm · 15 labels', A4, 50, 50, 3, 5, 20, 21.5, 55, 55, { shape: 'round' }),
-    S('a4-grid-3x8', 'Plain A4 · 3 × 8 grid (print and cut)', A4, 65, 33, 3, 8, 7.5, 16.5, 65, 33),
-    S('a4-grid-2x6', 'Plain A4 · 2 × 6 grid (print and cut)', A4, 95, 45, 2, 6, 10, 13.5, 95, 45),
-    S('letter-grid-3x8', 'Plain Letter · 3 × 8 grid (print and cut)', LETTER, 68, 32, 3, 8, 5.95, 11.7, 68, 32),
+    S('a4-round-40', 'Plain A4 · 40 mm cells · 24 labels (print and cut)', A4, 40, 40, 4, 6, 15, 18.5, 45, 45, { shape: 'round', plain: true }),
+    S('a4-round-50', 'Plain A4 · 50 mm cells · 15 labels (print and cut)', A4, 50, 50, 3, 5, 20, 21.5, 55, 55, { shape: 'round', plain: true }),
+    S('a4-square-45', 'Plain A4 · 45 mm squares · 20 labels (print and cut)', A4, 45, 45, 4, 5, 7.5, 26, 50, 50, { plain: true }),
+    S('a4-grid-4x8', 'Plain A4 · 4 × 8 small · 45 × 30 mm (print and cut)', A4, 45, 30, 4, 8, 15, 25, 45, 30, { plain: true }),
+    S('a4-grid-2x4', 'Plain A4 · 2 × 4 large · 90 × 60 mm (print and cut)', A4, 90, 60, 2, 4, 10, 20, 95, 65, { plain: true }),
+    S('a4-grid-3x8', 'Plain A4 · 3 × 8 grid (print and cut)', A4, 65, 33, 3, 8, 7.5, 16.5, 65, 33, { plain: true }),
+    S('a4-grid-2x6', 'Plain A4 · 2 × 6 grid (print and cut)', A4, 95, 45, 2, 6, 10, 13.5, 95, 45, { plain: true }),
+    S('letter-grid-3x8', 'Plain Letter · 3 × 8 grid (print and cut)', LETTER, 68, 32, 3, 8, 5.95, 11.7, 68, 32, { plain: true }),
   ];
   const sheetById = (id) => SHEETS.find((s) => s.id === id) || null;
   function customSheet({ page = 'a4', w, h, cols, rows, left, top, gapX = 0, gapY = 0, shape = 'rect' }) {
     const p = page === 'letter' ? LETTER : A4;
-    return { id: 'custom', name: 'Custom', page: p, w, h, cols, rows, left, top, px: w + gapX, py: h + gapY, shape };
+    return { id: 'custom', name: 'Custom', page: p, w, h, cols, rows, left, top, px: w + gapX, py: h + gapY, shape, plain: true };
   }
   /** Does the grid fit on the page? (lets the UI warn about a typo) */
   function sheetFits(s) { return s.left + (s.cols - 1) * s.px + s.w <= s.page[0] + 0.01 && s.top + (s.rows - 1) * s.py + s.h <= s.page[1] + 0.01 && s.left >= 0 && s.top >= 0; }
   const perSheet = (s) => s.cols * s.rows;
 
+  /* ───────────── fonts ───────────── */
+  // All bundled with the app (SIL Open Font License), so labels work offline.
+  // wMul / boldMul: width relative to the built-in Helvetica-like table, used only when no real measurer is available.
+  const FONT_LIST = [
+    { id: 'inter', name: 'Inter', kind: 'Clean sans', family: 'Inter', bold: 700, light: 500, mul: 1.0, files: ['inter-latin-wght-normal.woff2', 'inter-latin-ext-wght-normal.woff2'], var: '100 900', stack: "Inter, 'Helvetica Neue', Arial, sans-serif" },
+    { id: 'bricolage', name: 'Bricolage Grotesque', kind: 'Friendly sans', family: 'Bricolage Grotesque', bold: 700, light: 500, mul: 1.0, files: ['bricolage-grotesque-latin-wght-normal.woff2', 'bricolage-grotesque-latin-ext-wght-normal.woff2'], var: '200 800', stack: "'Bricolage Grotesque', Inter, Arial, sans-serif" },
+    { id: 'oswald', name: 'Oswald', kind: 'Condensed', family: 'Oswald', bold: 600, light: 400, mul: 0.8, files: ['oswald-latin-wght-normal.woff2', 'oswald-latin-ext-wght-normal.woff2'], var: '200 700', stack: "Oswald, 'Arial Narrow', Arial, sans-serif" },
+    { id: 'bebas', name: 'Bebas Neue', kind: 'Tall capitals', family: 'Bebas Neue', bold: 400, light: 400, mul: 0.74, files: ['bebas-neue-latin-400-normal.woff2', 'bebas-neue-latin-ext-400-normal.woff2'], var: '400', stack: "'Bebas Neue', Oswald, Impact, sans-serif", capsOnly: true },
+    { id: 'fredoka', name: 'Fredoka', kind: 'Round and friendly', family: 'Fredoka', bold: 600, light: 400, mul: 1.06, files: ['fredoka-latin-wght-normal.woff2', 'fredoka-latin-ext-wght-normal.woff2'], var: '300 700', stack: "Fredoka, 'Comic Sans MS', Arial, sans-serif" },
+    { id: 'lora', name: 'Lora', kind: 'Book serif', family: 'Lora', bold: 700, light: 400, mul: 1.02, files: ['lora-latin-wght-normal.woff2', 'lora-latin-ext-wght-normal.woff2'], var: '400 700', stack: "Lora, Georgia, 'Times New Roman', serif" },
+    { id: 'playfair', name: 'Playfair Display', kind: 'Elegant serif', family: 'Playfair Display', bold: 700, light: 400, mul: 1.06, files: ['playfair-display-latin-wght-normal.woff2', 'playfair-display-latin-ext-wght-normal.woff2'], var: '400 900', stack: "'Playfair Display', Georgia, serif" },
+    { id: 'dmserif', name: 'DM Serif Display', kind: 'Classic display', family: 'DM Serif Display', bold: 400, light: 400, mul: 0.98, files: ['dm-serif-display-latin-400-normal.woff2', 'dm-serif-display-latin-ext-400-normal.woff2'], var: '400', stack: "'DM Serif Display', Georgia, serif" },
+    { id: 'garamond', name: 'EB Garamond', kind: 'Old-style serif', family: 'EB Garamond', bold: 700, light: 500, mul: 0.92, files: ['eb-garamond-latin-wght-normal.woff2', 'eb-garamond-latin-ext-wght-normal.woff2'], var: '400 800', stack: "'EB Garamond', Garamond, Georgia, serif" },
+    { id: 'cinzel', name: 'Cinzel', kind: 'Roman capitals', family: 'Cinzel', bold: 700, light: 500, mul: 1.3, files: ['cinzel-latin-wght-normal.woff2', 'cinzel-latin-ext-wght-normal.woff2'], var: '400 900', stack: "Cinzel, 'Trajan Pro', Georgia, serif", capsOnly: true },
+    { id: 'caveat', name: 'Caveat', kind: 'Handwriting', family: 'Caveat', bold: 700, light: 500, mul: 0.78, files: ['caveat-latin-wght-normal.woff2', 'caveat-latin-ext-wght-normal.woff2'], var: '400 700', stack: "Caveat, 'Segoe Script', cursive" },
+    { id: 'pacifico', name: 'Pacifico', kind: 'Retro script', family: 'Pacifico', bold: 400, light: 400, mul: 1.12, files: ['pacifico-latin-400-normal.woff2', 'pacifico-latin-ext-400-normal.woff2'], var: '400', stack: "Pacifico, 'Brush Script MT', cursive" },
+    { id: 'amatic', name: 'Amatic SC', kind: 'Chalk lettering', family: 'Amatic SC', bold: 700, light: 700, mul: 0.62, files: ['amatic-sc-latin-700-normal.woff2', 'amatic-sc-latin-ext-700-normal.woff2'], var: '700', stack: "'Amatic SC', Caveat, cursive" },
+    { id: 'marker', name: 'Permanent Marker', kind: 'Felt-tip marker (no č š ž)', family: 'Permanent Marker', bold: 400, light: 400, mul: 1.05, files: ['permanent-marker-latin-400-normal.woff2'], var: '400', stack: "'Permanent Marker', 'Marker Felt', cursive" },
+    { id: 'typewriter', name: 'Special Elite', kind: 'Typewriter', family: 'Special Elite', bold: 400, light: 400, mul: 1.08, files: ['special-elite-latin-400-normal.woff2', 'special-elite-latin-ext-400-normal.woff2'], var: '400', stack: "'Special Elite', 'Courier New', monospace" },
+    { id: 'mono', name: 'JetBrains Mono', kind: 'Monospace', family: 'JetBrains Mono', bold: 700, light: 400, mul: 1.13, files: ['jetbrains-mono-latin-wght-normal.woff2', 'jetbrains-mono-latin-ext-wght-normal.woff2'], var: '100 800', stack: "'JetBrains Mono', Menlo, Consolas, monospace" },
+  ];
+  const fontById = (id) => FONT_LIST.find((f) => f.id === id) || FONT_LIST[0];
+
   /* ───────────── themes ───────────── */
+  // border: none|solid|thick|double|dashed|dotted|perforated  ·  band: false|top|bottom|left  ·  pattern: null|dots|stripes|gingham|lines
+  const T = (id, name, bg, fg, accent, font, extra = {}) => ({ id, name, bg, fg, accent, font, border: 'solid', band: false, pattern: null, pcolor: accent, case: 'asis', ...extra });
   const THEMES = [
-    { id: 'classic', name: 'Classic', bg: '#fffdf7', fg: '#2b2118', accent: '#8a5a2b', font: 'serif', border: 'double', band: false, caps: false },
-    { id: 'modern', name: 'Modern', bg: '#ffffff', fg: '#16202b', accent: '#2a7de1', font: 'sans', border: 'none', band: true, caps: false },
-    { id: 'chalk', name: 'Chalkboard', bg: '#22272b', fg: '#f5f2ea', accent: '#e8c36a', font: 'sans', border: 'solid', band: false, caps: true },
-    { id: 'kraft', name: 'Kraft', bg: '#d8b98c', fg: '#3a2a18', accent: '#6e4a24', font: 'serif', border: 'solid', band: false, caps: true },
-    { id: 'minimal', name: 'Minimal', bg: '#ffffff', fg: '#111111', accent: '#111111', font: 'sans', border: 'none', band: false, caps: false },
-    { id: 'garden', name: 'Garden', bg: '#f4f8ec', fg: '#25391f', accent: '#5b8f3a', font: 'serif', border: 'solid', band: true, caps: false },
-    { id: 'bold', name: 'Bold', bg: '#ffd84a', fg: '#111111', accent: '#111111', font: 'sans', border: 'solid', band: false, caps: true },
+    T('classic', 'Classic', '#fffdf7', '#2b2118', '#8a5a2b', 'lora', { border: 'double' }),
+    T('modern', 'Modern', '#ffffff', '#16202b', '#2a7de1', 'inter', { border: 'none', band: 'top' }),
+    T('chalk', 'Chalkboard', '#22272b', '#f5f2ea', '#e8c36a', 'oswald', { case: 'upper' }),
+    T('kraft', 'Kraft', '#d8b98c', '#3a2a18', '#6e4a24', 'typewriter', { case: 'upper' }),
+    T('minimal', 'Minimal', '#ffffff', '#111111', '#111111', 'inter', { border: 'none' }),
+    T('garden', 'Garden', '#f4f8ec', '#25391f', '#5b8f3a', 'lora', { band: 'bottom' }),
+    T('bold', 'Bold', '#ffd84a', '#111111', '#111111', 'bebas', { border: 'thick', case: 'upper' }),
+    T('apothecary', 'Apothecary', '#f3ecd8', '#3b1f1f', '#6b1f1f', 'cinzel', { border: 'double', case: 'upper' }),
+    T('vintage', 'Vintage blue', '#e4eff5', '#17324a', '#2f5d86', 'dmserif', { border: 'dotted' }),
+    T('pastel', 'Pastel pink', '#ffe6ec', '#5a2433', '#e0577f', 'fredoka', { border: 'solid' }),
+    T('mint', 'Mint', '#e0f5ea', '#17392b', '#2f9e77', 'fredoka', { border: 'dashed' }),
+    T('gingham', 'Gingham', '#ffffff', '#3a1010', '#c8323c', 'lora', { pattern: 'gingham', pcolor: '#c8323c' }),
+    T('stripes', 'Stripes', '#ffffff', '#102a43', '#1f4e79', 'bebas', { pattern: 'stripes', pcolor: '#1f4e79', case: 'upper', border: 'thick' }),
+    T('polka', 'Polka dots', '#fff6e0', '#4a2a10', '#e08a1e', 'pacifico', { pattern: 'dots', pcolor: '#f3c77a', border: 'none' }),
+    T('terracotta', 'Terracotta', '#c8693f', '#fff3e4', '#fff3e4', 'playfair', { border: 'perforated' }),
+    T('ocean', 'Ocean', '#0f3b5f', '#eaf6ff', '#7cc4ee', 'oswald', { band: 'bottom', border: 'none', case: 'upper' }),
+    T('gold', 'Black & gold', '#141414', '#e9cf8a', '#c9a24a', 'cinzel', { border: 'double', case: 'upper' }),
+    T('scandi', 'Scandi', '#f7f5f0', '#2a2a2a', '#9aa0a6', 'inter', { border: 'none', band: 'bottom', case: 'lower' }),
+    T('stamp', 'Stamp', '#fbf3df', '#7a1f1f', '#7a1f1f', 'typewriter', { border: 'perforated', case: 'upper' }),
+    T('notebook', 'Notebook', '#fffbea', '#1b2a49', '#3b6fd4', 'caveat', { pattern: 'lines', pcolor: '#bcd0f2', border: 'none' }),
+    T('marker', 'Marker', '#ffffff', '#151515', '#e8453c', 'marker', { border: 'dashed' }),
+    T('chalkdoodle', 'Chalk doodle', '#2c3e36', '#f6f6ee', '#bfe3c8', 'amatic', { border: 'dashed', case: 'upper' }),
   ];
   const themeById = (id) => THEMES.find((t) => t.id === id) || THEMES[0];
+  /** Black-and-white version of a theme: white paper and black ink (dark themes are inverted), so it prints without colour ink. */
+  const monoTheme = (t) => ({ ...t, bg: '#ffffff', fg: '#000000', accent: '#000000', pcolor: '#6b6b6b' });
   const ACCENTS = ['#8a5a2b', '#2a7de1', '#d9466f', '#5b8f3a', '#e08a1e', '#7a4fc0', '#1fa08a', '#444444'];
+  const SHAPES = [['sheet', 'Sheet default'], ['rect', 'Rounded rectangle'], ['pill', 'Pill'], ['square', 'Square'], ['circle', 'Circle'], ['oval', 'Oval']];
+  const CASES = [['theme', 'Theme default'], ['asis', 'As typed'], ['upper', 'CAPITALS'], ['lower', 'lowercase'], ['title', 'Title Case']];
 
   /* ───────────── icons: 24×24, stroke only ───────────── */
   const ICONS = {
@@ -106,35 +153,58 @@
     craft: { name: 'Craft room', theme: 'classic', sub: '', items: ['Buttons', 'Beads', 'Thread', 'Ribbon', 'Felt', 'Yarn', 'Needles', 'Fabric Scraps', 'Zippers', 'Elastic', 'Glitter', 'Stickers', 'Washi Tape', 'Stamps', 'Paint', 'Scissors'] },
   };
 
-  /* ───────────── text measurement (Helvetica-like widths, per 1000 em) ───────────── */
+  /* ───────────── text measurement ───────────── */
+  // Without a real font to measure we estimate from a Helvetica-like width table (per 1000 em).
   const W = {};
   const set = (chars, w) => { for (const c of chars) W[c] = w; };
   set(' ', 278); set('abdeghnopqu', 556); set('c', 500); set('ksvxyz', 500); set('fjt', 278); set('il', 222); set('m', 833); set('r', 333); set('w', 722);
   set('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 690); set('IJ', 300); set('M', 830); set('W', 944); set('FEL', 600); set('GOQ', 778); set('0123456789', 556); set('.,:;\'’!|', 260); set('-–—', 333); set('&', 667); set('/()', 300); set('_', 556);
-  /** Width of a string in em for the given font family kind. */
-  function textWidth(str, { bold = false, serif = false, caps = false } = {}) {
-    let w = 0; for (const ch of caps ? str.toUpperCase() : str) w += W[ch] !== undefined ? W[ch] : (ch.charCodeAt(0) > 0x2e80 ? 1000 : 600);
-    w /= 1000; if (bold) w *= 1.07; if (serif) w *= 0.93; return w;
+  set('čćšžđ', 500); set('ČĆŠŽĐ', 690); set('äöüéèêàáíóúñç', 556); set('ÄÖÜÉ', 700);
+  let measurer = null;
+  /** Install a function (str, fontId, bold) → width in em, backed by a real canvas. Pass null to go back to estimates. */
+  function setMeasurer(fn) { measurer = fn; }
+  /** Apply a case mode: asis | upper | lower | title. */
+  function applyCase(text, mode) {
+    if (mode === 'upper') return text.toLocaleUpperCase(); if (mode === 'lower') return text.toLocaleLowerCase();
+    if (mode === 'title') return text.toLocaleLowerCase().replace(/(^|[\s\-/(])(\p{L})/gu, (m, a, b) => a + b.toLocaleUpperCase());
+    return text;
   }
-  /** Largest font size (mm) so `text` fits `maxW` on at most `maxLines` lines, and ≤ maxH tall. */
-  function fitText(text, maxW, maxH, { maxSize = 12, minSize = 2.2, maxLines = 2, bold = true, serif = false, caps = false, lineHeight = 1.12 } = {}) {
-    const words = String(text).trim().split(/\s+/).filter(Boolean);
-    const opt = { bold, serif, caps };
+  /** Width of a string in em. opts: font id, bold, spacing (em per character). */
+  function textWidth(str, { font = 'inter', bold = true, spacing = 0 } = {}) {
+    const f = fontById(font); let w = null;
+    if (measurer) { try { w = measurer(str, f.id, bold); } catch (e) { w = null; } }
+    if (typeof w !== 'number' || !isFinite(w)) { w = 0; for (const ch of str) w += W[ch] !== undefined ? W[ch] : (ch.charCodeAt(0) > 0x2e80 ? 1000 : 600); w = (w / 1000) * f.mul * (bold && f.bold >= 600 ? 1.06 : 1); if (f.capsOnly) w *= 1; }
+    return w + spacing * str.length;
+  }
+  /** Largest font size (mm) so `text` fits maxW on at most maxLines lines and maxH tall. Words are never split. */
+  function fitText(text, maxW, maxH, { maxSize = 12, minSize = 2.2, maxLines = 2, bold = true, font = 'inter', spacing = 0, lineHeight = 1.12 } = {}) {
+    const words = String(text).trim().split(/\s+/).filter(Boolean), opt = { font, bold, spacing }, safe = 0.97;
+    const wrap = (size) => { const lines = []; let cur = ''; for (const w of words) { const t = cur ? cur + ' ' + w : w; if (textWidth(t, opt) * size <= maxW * safe || !cur) cur = t; else { lines.push(cur); cur = w; } } if (cur) lines.push(cur); return lines; };
     for (let size = maxSize; size >= minSize - 1e-9; size -= 0.1) {
-      const lines = []; let cur = '';
-      for (const w of words) { const t = cur ? cur + ' ' + w : w; if (textWidth(t, opt) * size <= maxW || !cur) cur = t; else { lines.push(cur); cur = w; } }
-      if (cur) lines.push(cur);
-      if (lines.length <= maxLines && lines.every((l) => textWidth(l, opt) * size <= maxW + 1e-6) && lines.length * size * lineHeight <= maxH + 1e-6) return { size: Math.round(size * 10) / 10, lines, overflow: false };
+      const lines = wrap(size);
+      if (lines.length <= maxLines && lines.every((l) => textWidth(l, opt) * size <= maxW * safe + 1e-6) && lines.length * size * lineHeight <= maxH + 1e-6) return { size: Math.round(size * 10) / 10, lines, overflow: false };
     }
-    // cannot fit: shrink to the minimum and truncate the last line
-    const size = minSize, lines = [];
-    let cur = '';
-    for (const w of words) { const t = cur ? cur + ' ' + w : w; if (textWidth(t, opt) * size <= maxW || !cur) cur = t; else { lines.push(cur); cur = w; } }
-    if (cur) lines.push(cur);
-    const out = lines.slice(0, maxLines);
-    let last = out[out.length - 1] || ''; while (last.length > 1 && textWidth(last + '…', opt) * size > maxW) last = last.slice(0, -1);
-    if (lines.length > maxLines || textWidth(last, opt) * size > maxW) out[out.length - 1] = last + '…';
+    const size = minSize, out = wrap(size).slice(0, maxLines);
+    let last = out[out.length - 1] || '';
+    const all = wrap(size);
+    if (all.length > maxLines || textWidth(last, opt) * size > maxW * safe) { while (last.length > 1 && textWidth(last + '…', opt) * size > maxW * safe) last = last.slice(0, -1); out[out.length - 1] = last + '…'; }
     return { size, lines: out, overflow: true };
+  }
+
+  /* ───────────── dates ───────────── */
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const p2 = (n) => String(n).padStart(2, '0');
+  /** English/ISO formatting (the app uses Intl for localized month names). fmt: dmy. | dmy/ | mdy/ | iso | long | short | month */
+  function formatDate(d, fmt = 'dmy.') {
+    const D = d.getDate(), M = d.getMonth(), Y = d.getFullYear();
+    switch (fmt) { case 'dmy/': return `${p2(D)}/${p2(M + 1)}/${Y}`; case 'mdy/': return `${p2(M + 1)}/${p2(D)}/${Y}`; case 'iso': return `${Y}-${p2(M + 1)}-${p2(D)}`; case 'long': return `${D} ${MONTHS[M]} ${Y}`; case 'short': return `${D} ${MONTHS[M]}`; case 'month': return `${MONTHS[M]} ${Y}`; default: return `${p2(D)}.${p2(M + 1)}.${Y}`; }
+  }
+  /** Add days / weeks / months / years without drifting (31 Jan + 1 month = 28/29 Feb). */
+  function addTime(d, n, unit = 'days') {
+    const r = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    if (unit === 'days') r.setDate(r.getDate() + n); else if (unit === 'weeks') r.setDate(r.getDate() + 7 * n);
+    else { const day = r.getDate(); r.setDate(1); r.setMonth(r.getMonth() + (unit === 'years' ? 12 * n : n)); const last = new Date(r.getFullYear(), r.getMonth() + 1, 0).getDate(); r.setDate(Math.min(day, last)); }
+    return r;
   }
 
   /* ───────────── parsing the label list ───────────── */
@@ -168,46 +238,110 @@
   }
 
   /* ───────────── SVG ───────────── */
-  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const esc = (x) => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const num = (n) => Math.round(n * 100) / 100;
-  const FONTS = { sans: "Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif", serif: "'Bricolage Grotesque', Georgia, 'Times New Roman', serif" };
+  const SANS_STACK = "Inter, 'Helvetica Neue', Arial, sans-serif";
 
-  /** One label as an SVG <g> in a w×h mm box at the origin. */
-  function labelSvg(label, w, h, theme, opts = {}) {
-    const t = typeof theme === 'string' ? themeById(theme) : theme, accent = opts.accent || t.accent, round = opts.shape === 'round';
-    const serif = t.font === 'serif', family = serif ? "Georgia, 'Times New Roman', serif" : FONTS.sans, bold = true;
-    const out = [];
-    const pad = Math.min(w, h) * 0.09 + 0.8;
-    // background and border
-    if (round) {
-      const r = Math.min(w, h) / 2;
-      out.push(`<circle cx="${num(w / 2)}" cy="${num(h / 2)}" r="${num(r)}" fill="${t.bg}"/>`);
-      if (t.border !== 'none') out.push(`<circle cx="${num(w / 2)}" cy="${num(h / 2)}" r="${num(r - 1.1)}" fill="none" stroke="${accent}" stroke-width="0.5"/>`);
-      if (t.border === 'double') out.push(`<circle cx="${num(w / 2)}" cy="${num(h / 2)}" r="${num(r - 2)}" fill="none" stroke="${accent}" stroke-width="0.25"/>`);
-    } else {
-      const rad = Math.min(2.2, Math.min(w, h) * 0.1);
-      out.push(`<rect width="${num(w)}" height="${num(h)}" rx="${num(rad)}" fill="${t.bg}"/>`);
-      if (t.band) out.push(`<path d="M0 ${num(rad)}a${num(rad)} ${num(rad)} 0 0 1 ${num(rad)} ${num(-rad)}h${num(w - 2 * rad)}a${num(rad)} ${num(rad)} 0 0 1 ${num(rad)} ${num(rad)}v${num(Math.max(1.4, h * 0.08) - rad)}h${num(-w)}z" fill="${accent}"/>`);
-      if (t.border !== 'none') out.push(`<rect x="0.7" y="0.7" width="${num(w - 1.4)}" height="${num(h - 1.4)}" rx="${num(Math.max(0.5, rad - 0.6))}" fill="none" stroke="${accent}" stroke-width="0.4"/>`);
-      if (t.border === 'double') out.push(`<rect x="1.7" y="1.7" width="${num(w - 3.4)}" height="${num(h - 3.4)}" rx="${num(Math.max(0.4, rad - 1.4))}" fill="none" stroke="${accent}" stroke-width="0.2"/>`);
+  /** The effective shape for a sheet: die-cut sheets keep their own shape, plain paper can be anything. */
+  function effectiveShape(sheet, wanted) {
+    const own = sheet.shape === 'round' ? 'circle' : 'rect';
+    if (!sheet.plain || !wanted || wanted === 'sheet') return own;
+    return ['rect', 'pill', 'square', 'circle', 'oval'].includes(wanted) ? wanted : own;
+  }
+  /** Pattern definitions (once per page); patterns are referenced as url(#ws-pat-<theme>). */
+  function patternDefs(theme) {
+    const c = theme.pcolor;
+    switch (theme.pattern) {
+      case 'dots': return `<pattern id="ws-pat-${theme.id}" width="4.2" height="4.2" patternUnits="userSpaceOnUse"><circle cx="1.1" cy="1.1" r="0.55" fill="${c}"/><circle cx="3.2" cy="3.2" r="0.55" fill="${c}"/></pattern>`;
+      case 'stripes': return `<pattern id="ws-pat-${theme.id}" width="3.4" height="3.4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="1.1" height="3.4" fill="${c}" fill-opacity="0.16"/></pattern>`;
+      case 'gingham': return `<pattern id="ws-pat-${theme.id}" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="2.5" height="5" fill="${c}" fill-opacity="0.16"/><rect width="5" height="2.5" fill="${c}" fill-opacity="0.16"/></pattern>`;
+      case 'lines': return `<pattern id="ws-pat-${theme.id}" width="6" height="4.6" patternUnits="userSpaceOnUse"><rect y="3.9" width="6" height="0.35" fill="${c}"/></pattern>`;
+      default: return '';
     }
-    const bandH = t.band && !round ? Math.max(1.4, h * 0.08) : 0;
-    const innerW = (round ? w * 0.74 : w) - pad * 2, innerH = h - pad * 2 - bandH;
+  }
+  /** Label outline element for a shape inside a w×h cell (inset shrinks it). `attrs` are appended. */
+  function shapeEl(shape, w, h, inset, attrs) {
+    const sq = shape === 'square' || shape === 'circle', s = Math.min(w, h), sw = sq ? s : w, sh = sq ? s : h, x = (w - sw) / 2 + inset, y = (h - sh) / 2 + inset, iw = sw - 2 * inset, ih = sh - 2 * inset;
+    if (shape === 'circle') return `<circle cx="${num(w / 2)}" cy="${num(h / 2)}" r="${num(Math.max(0.1, iw / 2))}" ${attrs}/>`;
+    if (shape === 'oval') return `<ellipse cx="${num(w / 2)}" cy="${num(h / 2)}" rx="${num(Math.max(0.1, iw / 2))}" ry="${num(Math.max(0.1, ih / 2))}" ${attrs}/>`;
+    const r = shape === 'pill' ? ih / 2 : Math.max(0.3, Math.min(shape === 'square' ? 3.2 : 2.2, Math.min(sw, sh) * 0.1) - inset * 0.5);
+    return `<rect x="${num(x)}" y="${num(y)}" width="${num(iw)}" height="${num(ih)}" rx="${num(r)}" ${attrs}/>`;
+  }
+  const dashFor = { dashed: '2.4 1.5', dotted: '0.05 1.35', perforated: '0.05 2' };
+
+  /**
+   * One label as an SVG fragment in a w×h mm cell at the origin.
+   * opts: { accent, shape: rect|pill|square|circle|oval, font, sizeScale, caseMode, icons, dates:[{type:'text',text}|{type:'write',label}], uid }
+   * Returns the markup; its <clipPath> keeps everything inside the label no matter what.
+   */
+  function labelSvg(label, w, h, theme, opts = {}) {
+    const t0 = typeof theme === 'string' ? themeById(theme) : theme, t = opts.mono ? monoTheme(t0) : t0, accent = opts.mono ? '#000000' : (opts.accent || t.accent), shape = opts.shape || 'rect';
+    const f = fontById(opts.font || t.font), caseMode = !opts.caseMode || opts.caseMode === 'theme' ? t.case : opts.caseMode, uid = opts.uid === undefined ? 0 : opts.uid;
+    const round = shape === 'circle' || shape === 'oval', sizeScale = opts.sizeScale || 1;
+    const spacing = caseMode === 'upper' ? 0.04 : 0, fam = esc(f.stack), out = [];
+    const cell = Math.min(w, h), sw = shape === 'square' || shape === 'circle' ? cell : w, sh = shape === 'square' || shape === 'circle' ? cell : h, sx = (w - sw) / 2, sy = (h - sh) / 2;
+    out.push(`<clipPath id="ws-c${uid}">${shapeEl(shape, w, h, 0, '')}</clipPath>`);
+    out.push(`<g clip-path="url(#ws-c${uid})">`);
+    out.push(shapeEl(shape, w, h, 0, `fill="${t.bg}"`));
+    if (t.pattern) out.push(shapeEl(shape, w, h, 0, `fill="url(#ws-pat-${t.id})"`));
+    // colour band
+    let bT = 0, bB = 0, bL = 0;
+    if (t.band && !round) {
+      const bh = Math.max(1.4, sh * 0.09), bw = Math.max(1.6, sw * 0.06);
+      if (t.band === 'top') { out.push(`<rect x="${num(sx)}" y="${num(sy)}" width="${num(sw)}" height="${num(bh)}" fill="${accent}"/>`); bT = bh; }
+      else if (t.band === 'bottom') { out.push(`<rect x="${num(sx)}" y="${num(sy + sh - bh)}" width="${num(sw)}" height="${num(bh)}" fill="${accent}"/>`); bB = bh; }
+      else { out.push(`<rect x="${num(sx)}" y="${num(sy)}" width="${num(bw)}" height="${num(sh)}" fill="${accent}"/>`); bL = bw; }
+    }
+    // borders
+    const sw1 = cell < 25 ? 0.35 : 0.45, bd = t.border;
+    if (bd === 'solid') out.push(shapeEl(shape, w, h, 0.8, `fill="none" stroke="${accent}" stroke-width="${sw1}"`));
+    else if (bd === 'thick') out.push(shapeEl(shape, w, h, 0.9, `fill="none" stroke="${accent}" stroke-width="${Math.max(0.9, sw1 * 2.4)}"`));
+    else if (bd === 'double') { out.push(shapeEl(shape, w, h, 0.8, `fill="none" stroke="${accent}" stroke-width="${sw1}"`)); out.push(shapeEl(shape, w, h, 1.8, `fill="none" stroke="${accent}" stroke-width="0.2"`)); }
+    else if (dashFor[bd]) out.push(shapeEl(shape, w, h, 1.1, `fill="none" stroke="${accent}" stroke-width="${bd === 'dashed' ? 0.5 : bd === 'dotted' ? 0.75 : 0.9}" stroke-dasharray="${dashFor[bd]}" stroke-linecap="${bd === 'dashed' ? 'butt' : 'round'}"`));
+    // content box
+    const bw0 = bd === 'none' ? 0 : 1, pad = Math.min(sw, sh) * 0.08 + 0.9 + bw0;
+    let bx, by, bwid, bhgt;
+    if (shape === 'circle') { bwid = sw * 0.7; bhgt = sh * 0.62; bx = sx + (sw - bwid) / 2; by = sy + (sh - bhgt) / 2 + sh * 0.02; }
+    else if (shape === 'oval') { bwid = sw * 0.72; bhgt = sh * 0.6; bx = sx + (sw - bwid) / 2; by = sy + (sh - bhgt) / 2; }
+    else if (shape === 'pill') { const px = sh * 0.34 + 0.8; bx = sx + px; bwid = sw - 2 * px; by = sy + pad * 0.7 + bT; bhgt = sh - pad * 1.4 - bT - bB; }
+    else { bx = sx + pad + bL; bwid = sw - 2 * pad - bL; by = sy + pad + bT; bhgt = sh - 2 * pad - bT - bB; }
+    // dates (at the bottom)
+    const dates = (opts.dates || []).filter(Boolean).slice(0, 2);
+    let dh = dates.length ? Math.min(Math.max(bhgt * 0.2, 0), 3.6) : 0, showDates = dh >= 1.7 && bhgt >= 11 - (dates.length - 1);
+    if (!showDates) dh = 0;
+    const dateBlock = showDates ? dh * dates.length + 0.5 : 0;
+    const innerH = bhgt - dateBlock;
     const iconId = label.icon || (opts.icons === false ? null : iconFor(label.text));
-    const wide = !round && w / h >= 1.55 && innerH > 8;
-    const showIcon = iconId && ICONS[iconId] && Math.min(w, h) >= 16 && opts.icons !== false;
-    let iconSize = showIcon ? (wide ? Math.min(innerH * 0.8, h * 0.52, 14) : Math.min(h * (round ? 0.28 : 0.32), w * 0.4, 14)) : 0;
-    let tx = pad, ty = pad + bandH, tw = innerW, th = innerH, anchor = 'middle', cx;
-    if (showIcon && wide) { const ix = pad + 1.2; out.push(iconGroup(iconId, ix, bandH + (h - bandH - iconSize) / 2, iconSize, accent)); tx = ix + iconSize + 2.2; tw = w - tx - pad; cx = tx + tw / 2; }
-    else if (showIcon) { const iy = round ? h * 0.15 : pad + bandH + 0.3; out.push(iconGroup(iconId, (w - iconSize) / 2, iy, iconSize, accent)); ty = iy + iconSize + 0.8; th = h - ty - (round ? h * 0.14 : pad); tw = round ? w * 0.7 : innerW; cx = w / 2; }
-    else { cx = w / 2; if (round) { tw = w * 0.72; } }
-    if (wide || !showIcon) cx = (showIcon && wide) ? cx : w / 2;
-    const subH = label.sub ? Math.min(th * 0.34, 4.2) : 0, mainH = th - subH - (subH ? 0.6 : 0);
-    const fit = fitText(label.text, tw, mainH, { maxSize: Math.min(11, mainH * 0.92), maxLines: mainH > 14 ? 2 : 1, bold, serif, caps: t.caps });
-    const lineH = fit.size * 1.12, blockH = fit.lines.length * lineH + (subH ? subH + 0.6 : 0), startY = ty + (th - blockH) / 2;
-    const txtOpen = `<text font-family="${family}" fill="${t.fg}" text-anchor="${anchor}" font-weight="700"${t.caps ? ' letter-spacing="0.04em"' : ''}>`;
-    out.push(`<g font-size="${fit.size}">${fit.lines.map((l, i) => `<text x="${num(cx)}" y="${num(startY + lineH * (i + 0.82))}" font-family="${esc(family)}" fill="${t.fg}" text-anchor="middle" font-weight="700"${t.caps ? ' letter-spacing="0.04em"' : ''}>${esc(t.caps ? l.toUpperCase() : l)}</text>`).join('')}</g>`);
-    if (label.sub) { const sf = fitText(label.sub, tw, subH, { maxSize: Math.min(4.2, subH * 0.95), maxLines: 1, bold: false, serif }); out.push(`<text x="${num(cx)}" y="${num(startY + fit.lines.length * lineH + 0.6 + sf.size * 0.85)}" font-size="${sf.size}" font-family="${esc(family)}" fill="${t.fg}" fill-opacity="0.72" text-anchor="middle">${esc(sf.lines[0] || '')}</text>`); }
+    const wide = !round && bwid / innerH >= 1.7 && innerH > 8 && shape !== 'square';
+    const showIcon = iconId && ICONS[iconId] && opts.icons !== false && Math.min(sw, sh) >= 16 && innerH >= (wide ? 9 : 15);
+    let iconSize = showIcon ? (wide ? Math.min(innerH * 0.78, 14) : Math.min(innerH * 0.34, bwid * 0.4, 13)) : 0;
+    let tx = bx, ty = by, tw = bwid, th = innerH, cx = bx + bwid / 2;
+    if (showIcon && wide) { out.push(iconGroup(iconId, bx + 0.6, by + (innerH - iconSize) / 2, iconSize, accent)); tx = bx + iconSize + 2.6; tw = bx + bwid - tx; cx = tx + tw / 2; }
+    else if (showIcon) { out.push(iconGroup(iconId, bx + (bwid - iconSize) / 2, by, iconSize, accent)); ty = by + iconSize + 0.7; th = innerH - iconSize - 0.7; }
+    // text
+    const text = applyCase(label.text, caseMode), subTxt = label.sub ? applyCase(label.sub, caseMode === 'upper' ? 'asis' : caseMode) : '';
+    const subH = subTxt ? Math.min(th * 0.34, 4.4) : 0, mainH = th - subH - (subH ? 0.5 : 0);
+    const fit = fitText(text, tw, mainH, { maxSize: Math.min(11.5, mainH * 0.92) * sizeScale, minSize: 2.2, maxLines: mainH > 13 ? 2 : 1, bold: true, font: f.id, spacing });
+    const lineH = fit.size * 1.12, blockH = fit.lines.length * lineH + (subH ? subH + 0.5 : 0), startY = ty + (th - blockH) / 2;
+    const ls = spacing ? ` letter-spacing="${spacing}em"` : '';
+    out.push(`<g font-size="${fit.size}" font-family="${fam}" font-weight="${f.bold}" fill="${t.fg}" text-anchor="middle">${fit.lines.map((l, i) => `<text x="${num(cx)}" y="${num(startY + lineH * (i + 0.8))}"${ls}>${esc(l)}</text>`).join('')}</g>`);
+    if (subTxt) { const sf = fitText(subTxt, tw, subH, { maxSize: Math.min(4.4, subH * 0.95), minSize: 1.8, maxLines: 1, bold: false, font: f.id }); out.push(`<text x="${num(cx)}" y="${num(startY + fit.lines.length * lineH + 0.5 + sf.size * 0.82)}" font-size="${sf.size}" font-family="${fam}" font-weight="${f.light}" fill="${t.fg}" fill-opacity="0.75" text-anchor="middle">${esc(sf.lines[0] || '')}</text>`); }
+    // date lines
+    if (showDates) {
+      const dsize = Math.min(dh * 0.86, 3.4), dArea = showIcon && wide ? tw : bwid, dLeft = showIcon && wide ? tx : bx, dx0 = dLeft + dArea * 0.03, dwid = dArea * 0.94;
+      dates.forEach((d, i) => {
+        const base = by + innerH + 0.5 + dh * i + dsize * 0.86;
+        if (d.type === 'write') {
+          const lab = applyCase(d.label || 'Date', caseMode === 'upper' ? 'asis' : caseMode), lw = textWidth(lab, { font: f.id, bold: false }) * dsize + 0.8;
+          const lx = dx0, ex = dx0 + dwid; if (lw + 6 < dwid) { out.push(`<text x="${num(lx)}" y="${num(base)}" font-size="${num(dsize)}" font-family="${fam}" font-weight="${f.light}" fill="${t.fg}" fill-opacity="0.8">${esc(lab)}</text><line x1="${num(lx + lw)}" y1="${num(base + 0.25)}" x2="${num(ex)}" y2="${num(base + 0.25)}" stroke="${t.fg}" stroke-opacity="0.55" stroke-width="0.25"/>`); }
+          else out.push(`<line x1="${num(lx)}" y1="${num(base + 0.25)}" x2="${num(ex)}" y2="${num(base + 0.25)}" stroke="${t.fg}" stroke-opacity="0.55" stroke-width="0.25"/>`);
+        } else {
+          const df = fitText(d.text || '', dwid, dh, { maxSize: dsize, minSize: 1.6, maxLines: 1, bold: false, font: f.id });
+          out.push(`<text x="${num(cx)}" y="${num(base)}" font-size="${df.size}" font-family="${fam}" font-weight="${f.light}" fill="${t.fg}" fill-opacity="0.82" text-anchor="middle">${esc(df.lines[0] || '')}</text>`);
+        }
+      });
+    }
+    out.push('</g>');
     return out.join('');
   }
   function iconGroup(id, x, y, size, color) {
@@ -217,15 +351,17 @@
 
   /**
    * One full page as a standalone SVG sized in mm. `slots` come from layout(); `labels` is the full list.
-   * opts: { theme, accent, offsetX, offsetY, outlines, icons }
+   * opts: { theme, accent, mono, font, sizeScale, caseMode, shape, dates, offsetX, offsetY, outlines, icons, embed }
+   * `embed` is optional extra markup (for example an @font-face <style>) placed at the top.
    */
   function pageSvg(sheet, slots, labels, opts = {}) {
-    const [pw, ph] = sheet.page, ox = opts.offsetX || 0, oy = opts.offsetY || 0, theme = themeById(opts.theme);
-    const parts = [`<svg xmlns="http://www.w3.org/2000/svg" width="${pw}mm" height="${ph}mm" viewBox="0 0 ${pw} ${ph}" role="img" aria-label="Label sheet">`, `<rect width="${pw}" height="${ph}" fill="#fff"/>`];
-    for (const s of slots) {
-      if (s.index < 0) { if (opts.showEmpty) parts.push(`<g transform="translate(${num(s.x + ox)} ${num(s.y + oy)})"><${sheet.shape === 'round' ? `circle cx="${num(s.w / 2)}" cy="${num(s.h / 2)}" r="${num(s.w / 2)}"` : `rect width="${num(s.w)}" height="${num(s.h)}" rx="2"`} fill="none" stroke="#bbb" stroke-width="0.25" stroke-dasharray="1.5 1.5"/></g>`); continue; }
-      const lab = labels[s.index], th = lab.theme ? themeById(lab.theme) : theme;
-      parts.push(`<g transform="translate(${num(s.x + ox)} ${num(s.y + oy)})">${labelSvg(lab, s.w, s.h, th, { accent: opts.accent, shape: sheet.shape, icons: opts.icons })}${opts.outlines ? (sheet.shape === 'round' ? `<circle cx="${num(s.w / 2)}" cy="${num(s.h / 2)}" r="${num(s.w / 2)}" fill="none" stroke="#999" stroke-width="0.2"/>` : `<rect width="${num(s.w)}" height="${num(s.h)}" fill="none" stroke="#999" stroke-width="0.2"/>`) : ''}</g>`);
+    const [pw, ph] = sheet.page, ox = opts.offsetX || 0, oy = opts.offsetY || 0, theme = opts.mono ? monoTheme(themeById(opts.theme)) : themeById(opts.theme), shape = effectiveShape(sheet, opts.shape);
+    const parts = [`<svg xmlns="http://www.w3.org/2000/svg" width="${pw}mm" height="${ph}mm" viewBox="0 0 ${pw} ${ph}" role="img" aria-label="Label sheet">`, `<defs>${patternDefs(theme)}</defs>`, opts.embed || '', `<rect width="${pw}" height="${ph}" fill="#fff"/>`];
+    const used = new Set();
+    for (const sl of slots) {
+      if (sl.index < 0) { if (opts.showEmpty) parts.push(`<g transform="translate(${num(sl.x + ox)} ${num(sl.y + oy)})">${shapeEl(shape, sl.w, sl.h, 0, 'fill="none" stroke="#bbb" stroke-width="0.25" stroke-dasharray="1.5 1.5"')}</g>`); continue; }
+      const lab = labels[sl.index], th = lab.theme ? themeById(lab.theme) : theme; used.add(th.id);
+      parts.push(`<g transform="translate(${num(sl.x + ox)} ${num(sl.y + oy)})">${labelSvg(lab, sl.w, sl.h, th, { accent: opts.accent, mono: opts.mono, shape, icons: opts.icons, font: opts.font, sizeScale: opts.sizeScale, caseMode: opts.caseMode, dates: opts.dates, uid: sl.index })}${opts.outlines ? shapeEl(shape, sl.w, sl.h, 0, 'fill="none" stroke="#8a8a8a" stroke-width="0.2"') : ''}</g>`);
     }
     parts.push('</svg>');
     return parts.join('');
@@ -237,5 +373,5 @@
     return pages.map((slots) => pageSvg(sheet, slots, labels, opts));
   }
 
-  return { VERSION, SHEETS, THEMES, ACCENTS, ICONS, PRESETS, sheetById, customSheet, sheetFits, perSheet, themeById, iconFor, textWidth, fitText, parseList, layout, labelSvg, pageSvg, render };
+  return { VERSION, SHEETS, THEMES, ACCENTS, SHAPES, CASES, FONT_LIST, ICONS, PRESETS, sheetById, customSheet, sheetFits, perSheet, themeById, monoTheme, fontById, effectiveShape, iconFor, setMeasurer, applyCase, textWidth, fitText, formatDate, addTime, parseList, layout, labelSvg, pageSvg, render };
 });

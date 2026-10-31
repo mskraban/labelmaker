@@ -30,5 +30,5 @@ test('every element id the script uses exists', () => {
 });
 test('fonts and licences are present', () => {
   for (const m of fs.readFileSync(path.join(PUB, 'fonts.css'), 'utf8').matchAll(/url\('(fonts\/[^']+)'\)/g)) assert.ok(fs.existsSync(path.join(PUB, m[1])));
-  assert.ok(fs.readdirSync(path.join(PUB, 'fonts')).filter((f) => /LICENSE/.test(f)).length >= 3);
+  assert.ok(fs.readdirSync(path.join(PUB, 'fonts')).filter((f) => /LICENSE/.test(f)).length >= 14);
 });

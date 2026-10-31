@@ -3,8 +3,27 @@
   "version": "1.0.0",
   "description": "Free printable labels for jars, pantry and drawers, sized for Avery and plain sheets. Presets, icons, themes. Offline.",
   "license": "MIT",
-  "engines": { "node": ">=20" },
-  "scripts": { "test": "node --test", "dev": "npx --yes serve public -l 3000", "sheets": "node scripts/build-sheets.js", "assets": "node scripts/make-assets.js" },
-  "keywords": ["labels", "avery", "printable", "pantry", "spice-jars", "freezer-labels", "organizer", "offline"],
-  "devDependencies": { "@napi-rs/canvas": "^0.1.0" }
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "dev": "npx --yes serve public -l 3000",
+    "sheets": "node scripts/build-sheets.js",
+    "assets": "node scripts/make-assets.js",
+    "check-fit": "node scripts/check-fit.js"
+  },
+  "keywords": [
+    "labels",
+    "avery",
+    "printable",
+    "pantry",
+    "spice-jars",
+    "freezer-labels",
+    "organizer",
+    "offline"
+  ],
+  "devDependencies": {
+    "@napi-rs/canvas": "^0.1.0"
+  }
 }

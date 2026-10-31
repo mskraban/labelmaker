@@ -26,11 +26,17 @@ Spice jars, pantry tubs, workshop drawers, freezer bags: everybody wants matchin
 
 - 🏷️ **15 real sheet formats**: Avery L7160–L7165, L7651, US 5160/5163/5164, round 40/50 mm, and plain-paper grids. Or enter your own measurements.
 - ⚡ **Seven presets** (spices, pantry, baking, freezer, workshop, garden, craft) or paste your own list.
-- 🎨 **Seven themes** with accent colours, and icons chosen from the words (a leaf for herbs, wheat for flour, a snowflake for the freezer).
+- 🎨 **22 looks**: classic, apothecary, kraft, chalkboard, gingham, stripes, polka dots, notebook, black & gold, terracotta, stamp and more, with accent colours and icons chosen from the words (a leaf for herbs, wheat for flour, a snowflake for the freezer).
+- 🔤 **16 fonts** (serif, sans, condensed, handwriting, typewriter, marker…), all bundled so it works offline, including č š ž and other accents. Text size and letter case are adjustable.
+- ⭕ **Round, square, oval, pill or rounded labels** on plain paper, so they are easy to cut out.
+- 📅 **Dates**: write-in lines, today's date, a date you pick, or packed + use-by (“+3 months”) in seven formats.
+- 🖨️ **Black & white mode** for printing without colour ink: white paper, black print, dark themes inverted.
+- 📥 **Download PNG (300 dpi) or SVG** with the font embedded, or print / save as PDF.
 - 📏 **Exact size.** Output is SVG in millimetres, so it prints at the sheet's true dimensions.
 - 🧩 **Partly used sheet?** Start at label #7 and the first six stay blank.
 - 🔧 **Print fine-tuning**: shift the grid by tenths of a millimetre until it lines up.
 - ✂️ **No sheets? No problem.** Plain-paper layouts print cutting outlines.
+- ✅ **Text always stays inside the label.** Widths are measured with the real font, and `npm run check-fit` verifies ~110,000 text elements across every theme, font, shape and sheet.
 - 🔒 **Private and offline.** Nothing is uploaded. No AI, no tracking, no dependencies.
 
 ## Run it
@@ -48,11 +54,14 @@ Print at 100% (“Actual size”). In the print dialog choose “Save as PDF” 
 ```js
 const L = require('./public/engine.js');
 const labels = L.parseList('Flour\n3x Salt | fine\nSoup | Date: ____');
-const pages = L.render(L.sheetById('l7160'), labels, { theme: 'classic', skip: 4 });
+const pages = L.render(L.sheetById('a4-grid-4x8'), labels, {
+  theme: 'gingham', font: 'lora', shape: 'circle', mono: false, skip: 4,
+  dates: [{ type: 'text', text: 'Packed ' + L.formatDate(new Date(), 'dmy.') }],
+});
 // pages[0] is a complete SVG string (210 × 297 mm) ready to save or print
 ```
 
-Other exports: `SHEETS`, `customSheet()`, `layout()`, `fitText()`, `iconFor()`, `THEMES`, `PRESETS`, `ICONS`.
+Other exports: `SHEETS`, `THEMES`, `FONT_LIST`, `PRESETS`, `ICONS`, `customSheet()`, `layout()`, `fitText()`, `setMeasurer()`, `formatDate()`, `addTime()`, `monoTheme()`, `iconFor()`. In a browser, call `setMeasurer()` with a canvas-backed function so text is fitted with the real font's widths (the app does).
 
 ## Sheet data
 
