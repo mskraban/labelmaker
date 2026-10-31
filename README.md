@@ -25,6 +25,7 @@ Type a list, pick your label sheet (Avery or plain paper) and print matching lab
 Spice jars, pantry tubs, workshop drawers, freezer bags: everybody wants matching labels and nobody wants to fight a word processor to line text up with a sticker sheet.
 
 - 🏷️ **15 real sheet formats**: Avery L7160–L7165, L7651, US 5160/5163/5164, round 40/50 mm, and plain-paper grids. Or enter your own measurements.
+- 🔢 **A quantity for every label.** Switch the list to the “Quantities” view and set how many of each to print (10 of the first, 5 of the second, 3 of the third…). It shows the total, the sheets needed and how many spots stay empty. The same works in text with `10x Name`.
 - ⚡ **Seven presets** (spices, pantry, baking, freezer, workshop, garden, craft) or paste your own list.
 - 🎨 **22 looks**: classic, apothecary, kraft, chalkboard, gingham, stripes, polka dots, notebook, black & gold, terracotta, stamp and more, with accent colours and icons chosen from the words (a leaf for herbs, wheat for flour, a snowflake for the freezer).
 - 🔤 **16 fonts** (serif, sans, condensed, handwriting, typewriter, marker…), all bundled so it works offline, including č š ž and other accents. Text size and letter case are adjustable.

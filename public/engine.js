@@ -221,6 +221,24 @@
     return out;
   }
 
+  /** The list as editable rows: [{ qty, name, sub, icon }], one per non-empty line. */
+  function parseRows(text) {
+    const rows = [];
+    for (const raw of String(text || '').split(/\r?\n/)) {
+      let line = raw.trim(); if (!line) continue;
+      let qty = 1; const m = /^(\d{1,3})\s*[x×]\s+(.*)$/i.exec(line); if (m) { qty = Math.min(200, Math.max(1, +m[1])); line = m[2]; }
+      const [name, sub, icon] = line.split('|').map((x) => x.trim()); if (!name) continue;
+      rows.push({ qty, name: name.slice(0, 60), sub: (sub || '').slice(0, 60), icon: icon && ICONS[icon] ? icon : '' });
+    }
+    return rows;
+  }
+  /** Rows back to the text format ("3x Name | second line | icon"). Rows without a name are skipped. */
+  function rowsToText(rows) {
+    return rows.filter((r) => r && String(r.name || '').trim()).map((r) => { const q = Math.min(200, Math.max(1, parseInt(r.qty, 10) || 1)); const icon = r.icon && ICONS[r.icon] ? r.icon : ''; return `${q > 1 ? q + 'x ' : ''}${String(r.name).trim()}${r.sub || icon ? ' | ' + (r.sub || '') : ''}${icon ? ' | ' + icon : ''}`; }).join('\n');
+  }
+  /** Total number of labels a list produces. */
+  const countLabels = (text) => parseRows(text).reduce((n, r) => n + r.qty, 0);
+
   /* ───────────── layout ───────────── */
   /** Place `count` labels on as many sheets as needed. `skip` leaves that many positions empty at the start (partly used sheet). */
   function layout(sheet, count, skip = 0) {
@@ -374,5 +392,5 @@
     return pages.map((slots) => pageSvg(sheet, slots, labels, opts));
   }
 
-  return { VERSION, SHEETS, THEMES, ACCENTS, SHAPES, CASES, FONT_LIST, ICONS, PRESETS, sheetById, customSheet, sheetFits, perSheet, themeById, monoTheme, fontById, effectiveShape, iconFor, setMeasurer, applyCase, textWidth, fitText, formatDate, addTime, parseList, layout, labelSvg, pageSvg, render };
+  return { VERSION, SHEETS, THEMES, ACCENTS, SHAPES, CASES, FONT_LIST, ICONS, PRESETS, sheetById, customSheet, sheetFits, perSheet, themeById, monoTheme, fontById, effectiveShape, iconFor, setMeasurer, applyCase, textWidth, fitText, formatDate, addTime, parseList, parseRows, rowsToText, countLabels, layout, labelSvg, pageSvg, render };
 });

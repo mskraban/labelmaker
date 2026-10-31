@@ -160,3 +160,16 @@ test('date size and bold: larger and heavier, but never bigger than the label al
   assert.ok(!/NaN/.test(mk({ dateScale: 9 })), 'absurd scale is clamped');
   const tiny = L.render(L.sheetById('l7651'), [{ text: 'Soup' }], { theme: 'minimal', dateScale: 2.5, dateBold: true, dates: [{ type: 'write', label: 'Use by' }, { type: 'text', text: 'Packed 31.10.2026' }] })[0]; assert.ok(!/NaN/.test(tiny));
 });
+
+test('quantity rows: parse, edit and write back without losing anything', () => {
+  const text = '10x Flour\nSugar | fine\n5 x Salt | coarse | cube\n\n3x Rice';
+  const rows = L.parseRows(text);
+  assert.deepEqual(rows, [{ qty: 10, name: 'Flour', sub: '', icon: '' }, { qty: 1, name: 'Sugar', sub: 'fine', icon: '' }, { qty: 5, name: 'Salt', sub: 'coarse', icon: 'cube' }, { qty: 3, name: 'Rice', sub: '', icon: '' }]);
+  assert.equal(L.rowsToText(rows), '10x Flour\nSugar | fine\n5x Salt | coarse | cube\n3x Rice');
+  assert.deepEqual(L.parseRows(L.rowsToText(rows)), rows, 'round trip');
+  assert.equal(L.countLabels(text), 19); assert.equal(L.countLabels(''), 0);
+  assert.equal(L.rowsToText([{ qty: 0, name: ' Tea ', sub: '', icon: '' }, { qty: 4, name: '', sub: 'x' }, { qty: 999, name: 'Big', sub: '', icon: 'nope' }]), 'Tea\n200x Big', 'qty clamped, empty rows and bad icons dropped');
+  // the same list through the label parser gives the same number of labels
+  assert.equal(L.parseList(text).length, L.countLabels(text));
+  assert.deepEqual(L.parseList('3x Rice').map((x) => x.text), ['Rice', 'Rice', 'Rice']);
+});
