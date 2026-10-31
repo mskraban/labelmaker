@@ -11,7 +11,8 @@
     "dev": "npx --yes serve public -l 3000",
     "sheets": "node scripts/build-sheets.js",
     "assets": "node scripts/make-assets.js",
-    "check-fit": "node scripts/check-fit.js"
+    "check-fit": "node scripts/check-fit.js",
+    "stamp": "node scripts/stamp-assets.js"
   },
   "keywords": [
     "labels",
