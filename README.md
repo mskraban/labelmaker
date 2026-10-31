@@ -39,7 +39,7 @@ Spice jars, pantry tubs, workshop drawers, freezer bags: everybody wants matchin
 - 🔧 **Print fine-tuning**: shift the grid by tenths of a millimetre until it lines up.
 - ✂️ **No sheets? No problem.** Plain-paper layouts print cutting outlines.
 - ✅ **Text always stays inside the label.** Widths are measured with the real font, and `npm run check-fit` verifies ~110,000 text elements across every theme, font, shape and sheet.
-- 🔒 **Private and offline.** Nothing is uploaded. No AI, no tracking, no dependencies.
+- 🔒 **Private and offline.** Nothing is uploaded. No AI, no cookies, no dependencies. The hosted site only counts anonymous page views (Vercel Web Analytics).
 
 ## Run it
 

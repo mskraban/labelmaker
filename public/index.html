@@ -163,7 +163,7 @@ footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--lin
 </tbody></table></div><!--/SHEETS--></section>
 <section class="info"><h2>Printing tips</h2><ol><li>Set the paper size in the print dialog to match the sheet (A4 or Letter).</li><li>Turn off headers, footers and “fit to page”; use scale 100%.</li><li>Do a test print on plain paper first and hold it to the light against a label sheet.</li><li>For a freezer, use a second line such as “Date: ____” and write the date with a permanent marker.</li></ol></section>
 <section class="info" id="faq"><h2>Questions</h2>
-<details><summary>Is it free and private?</summary><p>Yes. Nothing is uploaded: your list is processed in your browser, and it works offline once loaded.</p></details>
+<details><summary>Is it free and private?</summary><p>Yes. Nothing is uploaded: your list is processed in your browser, and it works offline once loaded. The site only counts anonymous page views (Vercel Web Analytics, no cookies).</p></details>
 <details><summary>Do I need to buy label sheets?</summary><p>No. Choose a plain paper grid, switch on cutting outlines, print and cut. Self-adhesive sheets just save the cutting.</p></details>
 <details><summary>Why are my labels slightly misaligned?</summary><p>Printers add small margins of their own. Print at 100% and use the “Shift right / down” fields to correct by a fraction of a millimetre.</p></details>
 <details><summary>Can I make round or square labels?</summary><p>Yes. Pick one of the “Plain A4” sheets, then choose Circle, Square, Oval, Pill or Rounded rectangle under “Label shape”. Switch on cutting outlines and cut along the line. Die-cut sheets (Avery and similar) keep the shape of the sticker.</p></details>
@@ -353,5 +353,7 @@ if (saved && saved.list) setState(saved); else { $('preset').value = 'spices'; l
 draw();
 })();
 </script>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
