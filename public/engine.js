@@ -271,7 +271,7 @@
 
   /**
    * One label as an SVG fragment in a w×h mm cell at the origin.
-   * opts: { accent, shape: rect|pill|square|circle|oval, font, sizeScale, caseMode, icons, dates:[{type:'text',text}|{type:'write',label}], uid }
+   * opts: { accent, shape: rect|pill|square|circle|oval, font, sizeScale, caseMode, icons, dateScale (0.5–2.5), dateBold, dates:[{type:'text',text}|{type:'write',label}], uid }
    * Returns the markup; its <clipPath> keeps everything inside the label no matter what.
    */
   function labelSvg(label, w, h, theme, opts = {}) {
@@ -307,7 +307,8 @@
     else { bx = sx + pad + bL; bwid = sw - 2 * pad - bL; by = sy + pad + bT; bhgt = sh - 2 * pad - bT - bB; }
     // dates (at the bottom)
     const dates = (opts.dates || []).filter(Boolean).slice(0, 2);
-    let dh = dates.length ? Math.min(Math.max(bhgt * 0.2, 0), 3.6) : 0, showDates = dh >= 1.7 && bhgt >= 11 - (dates.length - 1);
+    const ds = Math.min(2.5, Math.max(0.5, opts.dateScale || 1)), dBold = !!opts.dateBold;
+    let dh = dates.length ? Math.min(bhgt * 0.2 * ds, 3.6 * ds, bhgt * 0.32 / dates.length * (dates.length > 1 ? 1.2 : 1.6)) : 0, showDates = dh >= 1.7 && bhgt >= 11 - (dates.length - 1);
     if (!showDates) dh = 0;
     const dateBlock = showDates ? dh * dates.length + 0.5 : 0;
     const innerH = bhgt - dateBlock;
@@ -328,16 +329,16 @@
     if (subTxt) { const sf = fitText(subTxt, tw, subH, { maxSize: Math.min(4.4, subH * 0.95), minSize: 1.8, maxLines: 1, bold: false, font: f.id }); out.push(`<text x="${num(cx)}" y="${num(startY + fit.lines.length * lineH + 0.5 + sf.size * 0.82)}" font-size="${sf.size}" font-family="${fam}" font-weight="${f.light}" fill="${t.fg}" fill-opacity="0.75" text-anchor="middle">${esc(sf.lines[0] || '')}</text>`); }
     // date lines
     if (showDates) {
-      const dsize = Math.min(dh * 0.86, 3.4), dArea = showIcon && wide ? tw : bwid, dLeft = showIcon && wide ? tx : bx, dx0 = dLeft + dArea * 0.03, dwid = dArea * 0.94;
+      const dsize = Math.min(dh * 0.86, 3.4 * ds), dW = dBold ? f.bold : f.light, dArea = showIcon && wide ? tw : bwid, dLeft = showIcon && wide ? tx : bx, dx0 = dLeft + dArea * 0.03, dwid = dArea * 0.94;
       dates.forEach((d, i) => {
         const base = by + innerH + 0.5 + dh * i + dsize * 0.86;
         if (d.type === 'write') {
-          const lab = applyCase(d.label || 'Date', caseMode === 'upper' ? 'asis' : caseMode), lw = textWidth(lab, { font: f.id, bold: false }) * dsize + 0.8;
-          const lx = dx0, ex = dx0 + dwid; if (lw + 6 < dwid) { out.push(`<text x="${num(lx)}" y="${num(base)}" font-size="${num(dsize)}" font-family="${fam}" font-weight="${f.light}" fill="${t.fg}" fill-opacity="0.8">${esc(lab)}</text><line x1="${num(lx + lw)}" y1="${num(base + 0.25)}" x2="${num(ex)}" y2="${num(base + 0.25)}" stroke="${t.fg}" stroke-opacity="0.55" stroke-width="0.25"/>`); }
+          const lab = applyCase(d.label || 'Date', caseMode === 'upper' ? 'asis' : caseMode), lw = textWidth(lab, { font: f.id, bold: dBold }) * dsize + 0.8;
+          const lx = dx0, ex = dx0 + dwid; if (lw + 6 < dwid) { out.push(`<text x="${num(lx)}" y="${num(base)}" font-size="${num(dsize)}" font-family="${fam}" font-weight="${dW}" fill="${t.fg}" fill-opacity="${dBold ? 1 : 0.8}">${esc(lab)}</text><line x1="${num(lx + lw)}" y1="${num(base + 0.25)}" x2="${num(ex)}" y2="${num(base + 0.25)}" stroke="${t.fg}" stroke-opacity="0.55" stroke-width="0.25"/>`); }
           else out.push(`<line x1="${num(lx)}" y1="${num(base + 0.25)}" x2="${num(ex)}" y2="${num(base + 0.25)}" stroke="${t.fg}" stroke-opacity="0.55" stroke-width="0.25"/>`);
         } else {
-          const df = fitText(d.text || '', dwid, dh, { maxSize: dsize, minSize: 1.6, maxLines: 1, bold: false, font: f.id });
-          out.push(`<text x="${num(cx)}" y="${num(base)}" font-size="${df.size}" font-family="${fam}" font-weight="${f.light}" fill="${t.fg}" fill-opacity="0.82" text-anchor="middle">${esc(df.lines[0] || '')}</text>`);
+          const df = fitText(d.text || '', dwid, dh, { maxSize: dsize, minSize: 1.6, maxLines: 1, bold: dBold, font: f.id });
+          out.push(`<text x="${num(cx)}" y="${num(base)}" font-size="${df.size}" font-family="${fam}" font-weight="${dW}" fill="${t.fg}" fill-opacity="${dBold ? 1 : 0.82}" text-anchor="middle">${esc(df.lines[0] || '')}</text>`);
         }
       });
     }
@@ -361,7 +362,7 @@
     for (const sl of slots) {
       if (sl.index < 0) { if (opts.showEmpty) parts.push(`<g transform="translate(${num(sl.x + ox)} ${num(sl.y + oy)})">${shapeEl(shape, sl.w, sl.h, 0, 'fill="none" stroke="#bbb" stroke-width="0.25" stroke-dasharray="1.5 1.5"')}</g>`); continue; }
       const lab = labels[sl.index], th = lab.theme ? themeById(lab.theme) : theme; used.add(th.id);
-      parts.push(`<g transform="translate(${num(sl.x + ox)} ${num(sl.y + oy)})">${labelSvg(lab, sl.w, sl.h, th, { accent: opts.accent, mono: opts.mono, shape, icons: opts.icons, font: opts.font, sizeScale: opts.sizeScale, caseMode: opts.caseMode, dates: opts.dates, uid: sl.index })}${opts.outlines ? shapeEl(shape, sl.w, sl.h, 0, 'fill="none" stroke="#8a8a8a" stroke-width="0.2"') : ''}</g>`);
+      parts.push(`<g transform="translate(${num(sl.x + ox)} ${num(sl.y + oy)})">${labelSvg(lab, sl.w, sl.h, th, { accent: opts.accent, mono: opts.mono, shape, icons: opts.icons, font: opts.font, sizeScale: opts.sizeScale, caseMode: opts.caseMode, dates: opts.dates, dateScale: opts.dateScale, dateBold: opts.dateBold, uid: sl.index })}${opts.outlines ? shapeEl(shape, sl.w, sl.h, 0, 'fill="none" stroke="#8a8a8a" stroke-width="0.2"') : ''}</g>`);
     }
     parts.push('</svg>');
     return parts.join('');

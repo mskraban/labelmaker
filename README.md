@@ -29,7 +29,8 @@ Spice jars, pantry tubs, workshop drawers, freezer bags: everybody wants matchin
 - 🎨 **22 looks**: classic, apothecary, kraft, chalkboard, gingham, stripes, polka dots, notebook, black & gold, terracotta, stamp and more, with accent colours and icons chosen from the words (a leaf for herbs, wheat for flour, a snowflake for the freezer).
 - 🔤 **16 fonts** (serif, sans, condensed, handwriting, typewriter, marker…), all bundled so it works offline, including č š ž and other accents. Text size and letter case are adjustable.
 - ⭕ **Round, square, oval, pill or rounded labels** on plain paper, so they are easy to cut out.
-- 📅 **Dates**: write-in lines, today's date, a date you pick, or packed + use-by (“+3 months”) in seven formats.
+- 📅 **Dates**: write-in lines, today's date, a date you pick, or packed + use-by (“+3 months”) in seven formats, with adjustable size and bold.
+- 💾 **Saved designs.** Name a design and it is kept in your browser (localStorage) with every setting: list, sheet, shape, look, font, date and print offsets. Load, overwrite or delete it any time. Your last session is restored automatically.
 - 🖨️ **Black & white mode** for printing without colour ink: white paper, black print, dark themes inverted.
 - 📥 **Download PNG (300 dpi) or SVG** with the font embedded, or print / save as PDF.
 - 📏 **Exact size.** Output is SVG in millimetres, so it prints at the sheet's true dimensions.

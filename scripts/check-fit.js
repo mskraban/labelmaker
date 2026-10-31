@@ -21,8 +21,8 @@ const server = http.createServer((q, r) => { const f = path.join(PUB, q.url === 
     const box = document.createElement('div'); box.style.cssText = 'position:absolute;left:-9999px;top:0'; document.body.appendChild(box);
     let checked = 0; const bad = [];
     for (const theme of L.THEMES) for (const font of L.FONT_LIST) for (const [sid, shape] of combos) {
-      const sheet = L.sheetById(sid), eff = L.effectiveShape(sheet, shape), dates = dateSets[(checked + font.id.length) % 3], scale = [1, 1.3, 0.8][checked % 3];
-      const svg = L.render(sheet, labels, { theme: theme.id, font: font.id, shape, dates, sizeScale: scale, icons: checked % 2 === 0 })[0];
+      const sheet = L.sheetById(sid), eff = L.effectiveShape(sheet, shape), dates = dateSets[(checked + font.id.length) % 3], scale = [1, 1.3, 0.8][checked % 3], dScale = [1, 2.2, 0.7, 1.6][checked % 4], dBold = checked % 5 < 2;
+      const svg = L.render(sheet, labels, { theme: theme.id, font: font.id, shape, dates, dateScale: dScale, dateBold: dBold, sizeScale: scale, icons: checked % 2 === 0 })[0];
       box.innerHTML = svg; const root = box.firstChild;
       const groups = [...root.querySelectorAll(':scope > g[transform]')];
       groups.forEach((g, gi) => {

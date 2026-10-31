@@ -61,7 +61,7 @@ footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--lin
 .seg { display: flex; flex-wrap: wrap; border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; } .seg button { flex: 1 1 33%; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fff; padding: 8px 4px; font: 600 12.5px var(--font-body); color: var(--muted); cursor: pointer; } .seg button[aria-pressed=true] { background: var(--accent); color: #fff; } .seg button:disabled { opacity: .4; cursor: not-allowed; }
 .lock { color: #7a5a00; background: #fff3d6; border-radius: 8px; padding: 6px 10px; font-size: 12.5px; margin-top: 6px; display: none; } .lock.on { display: block; }
 .dates .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .dates[hidden], .dsub[hidden] { display: none; }
-.busy { opacity: .55; transition: opacity .15s; } .themes.gray button i, .swatches.off { filter: grayscale(1); } .swatches.off { opacity: .35; pointer-events: none; }
+.designs { margin: 8px 0 4px; display: grid; gap: 6px; } .designs .d { display: flex; align-items: center; gap: 8px; background: #faf8f2; border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px 6px 12px; } .designs .d b { flex: 1; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .designs .d small { color: var(--muted); font-size: 11.5px; } .designs .d button { font: 600 12.5px var(--font-body); border: 0; border-radius: 999px; padding: 6px 12px; cursor: pointer; background: #e9e5d9; color: var(--ink); } .designs .d button.go { background: var(--accent); color: #fff; } .designs .none { color: var(--muted); font-size: 13px; } .busy { opacity: .55; transition: opacity .15s; } .themes.gray button i, .swatches.off { filter: grayscale(1); } .swatches.off { opacity: .35; pointer-events: none; }
 </style>
 
 <style id="pagesize">@page { size: 210mm 297mm; margin: 0; }</style>
@@ -74,6 +74,10 @@ footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--lin
 <section class="hero"><h1>Labels that <em>match</em> your sheets.</h1><p>Type your list. Pick your label sheet, or plain paper. Choose a look, a font, a shape and a date, then print jars, drawers and freezer bags in one tidy set, at exactly the right size, in colour or black and white.</p></section>
 <div class="app" id="app">
   <div class="card">
+    <p class="step">Saved designs <small style="text-transform:none;letter-spacing:0">(kept in this browser)</small></p>
+    <div class="row"><input type="text" id="dname" maxlength="40" placeholder="Name, e.g. Spice jars" aria-label="Name for this design"><button class="btn sm" id="dsave" type="button" style="flex:0 0 auto">Save</button></div>
+    <div id="designs" class="designs"></div>
+
     <p class="step">1 · What to label</p>
     <label for="preset" style="margin-top:0">Start from a preset</label>
     <select id="preset"></select>
@@ -110,6 +114,7 @@ footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--lin
     <select id="dmode" aria-label="Date on the labels"><option value="none">No date</option><option value="write">Write-in line (Date: ______)</option><option value="today">Today's date</option><option value="pick">A date I choose</option><option value="expiry">Packed today + use-by date</option><option value="both">Two write-in lines (packed / use by)</option></select>
     <div class="dates" id="dbox" hidden>
       <div class="row2"><div><label for="dprefix">Text before the date</label><input type="text" id="dprefix" maxlength="16" value="Packed"></div><div id="dfmtbox"><label for="dfmt">Format</label><select id="dfmt"><option value="dmy.">31.10.2026</option><option value="dmy/">31/10/2026</option><option value="mdy/">10/31/2026</option><option value="iso">2026-10-31</option><option value="long">31 Oct 2026</option><option value="short">31 Oct</option><option value="month">Oct 2026</option></select></div></div>
+      <div class="row2"><div><label for="dsize">Date size</label><div class="range"><input type="range" id="dsize" min="60" max="220" value="100" step="10"><output id="dsizeout">100%</output></div></div><div><label class="tog" style="margin-top:30px"><input type="checkbox" id="dbold"> Bold date</label></div></div>
       <div class="row2"><div id="dpickbox"><label for="dpick">Date</label><input type="date" id="dpick"></div><div class="dsub" id="dexpbox" hidden><label for="dexp">Use by after</label><div class="row"><input type="number" id="dexp" min="1" max="999" value="3"><select id="dunit"><option value="days">days</option><option value="weeks">weeks</option><option value="months" selected>months</option><option value="years">years</option></select></div></div></div>
       <div class="dsub" id="dp2box" hidden><label for="dprefix2">Text before the use-by date</label><input type="text" id="dprefix2" maxlength="16" value="Use by"></div>
     </div>
@@ -164,7 +169,7 @@ footer { margin-top: 56px; padding: 28px 0 46px; border-top: 1px solid var(--lin
 
 <div id="printarea" aria-hidden="true"></div>
 
-<script src="engine.js?v=46b7fd9d"></script>
+<script src="engine.js?v=462059e7"></script>
 <script>
 'use strict';
 (() => {
@@ -225,7 +230,7 @@ function syncControls(sheet) {
   $('shapelock').classList.toggle('on', !plain);
   $('customBox').classList.toggle('on', $('sheet').value === 'custom');
   const f = L.fontById(activeFont()); $('fontprev').style.fontFamily = f.stack; $('fontprev').style.fontWeight = f.bold;
-  $('sizeout').textContent = $('size').value + '%';
+  $('sizeout').textContent = $('size').value + '%'; $('dsizeout').textContent = $('dsize').value + '%';
   $('themes').classList.toggle('gray', $('mono').checked); $('swatches').classList.toggle('off', $('mono').checked);
 }
 let pages = [], seq = 0;
@@ -239,13 +244,13 @@ async function draw() {
   await ensureFont($('list').value + $('sub').value + 'Date 0123456789.,/-: ' + $('dprefix').value + $('dprefix2').value);
   if (my !== seq) return;
   const skip = Math.max(0, (parseInt($('skip').value, 10) || 1) - 1);
-  pages = L.render(sheet, labels, { theme: st.theme, accent: st.accent || undefined, mono: $('mono').checked, font: $('font').value || undefined, sizeScale: parseInt($('size').value, 10) / 100, caseMode: $('case').value, shape: st.shape, dates: dateLines(), offsetX: parseFloat($('offx').value) || 0, offsetY: parseFloat($('offy').value) || 0, outlines: $('outlines').checked, icons: $('icons').checked, skip });
+  pages = L.render(sheet, labels, { theme: st.theme, accent: st.accent || undefined, mono: $('mono').checked, font: $('font').value || undefined, sizeScale: parseInt($('size').value, 10) / 100, caseMode: $('case').value, shape: st.shape, dates: dateLines(), dateScale: parseInt($('dsize').value, 10) / 100, dateBold: $('dbold').checked, offsetX: parseFloat($('offx').value) || 0, offsetY: parseFloat($('offy').value) || 0, outlines: $('outlines').checked, icons: $('icons').checked, skip });
   $('pages').innerHTML = pages.map((svg, i) => `<div class="pagecard"><h3>Page ${i + 1} of ${pages.length} · ${sheet.page[0] > 211 ? 'Letter' : 'A4'}</h3>${svg}</div>`).join('');
   $('pages').classList.remove('busy');
   $('count').textContent = `${labels.length} label${labels.length === 1 ? '' : 's'} · ${pages.length} sheet${pages.length === 1 ? '' : 's'} (${L.perSheet(sheet)} per sheet)`;
   document.getElementById('pagesize').textContent = `@page { size: ${sheet.page[0]}mm ${sheet.page[1]}mm; margin: 0; }`;
   $('printarea').innerHTML = pages.join('');
-  store.set('lm2', JSON.stringify({ list: $('list').value, sub: $('sub').value, sheet: $('sheet').value, theme: st.theme, accent: st.accent, icons: $('icons').checked, mono: $('mono').checked, font: $('font').value, size: $('size').value, case: $('case').value, shape: st.shape }));
+  store.set('lm3', JSON.stringify(getState()));
 }
 
 /* exports: the font is embedded so the file looks right anywhere */
@@ -258,12 +263,12 @@ async function embedCss() {
   return `<style>${parts.join('')}</style>`;
 }
 async function pageWithFont(i) { const sheet = currentSheet(), labels = L.parseList($('list').value, { sub: $('sub').value.trim() }).slice(0, 600), skip = Math.max(0, (parseInt($('skip').value, 10) || 1) - 1), slots = L.layout(sheet, labels.length, skip)[i];
-  return { sheet, svg: L.pageSvg(sheet, slots, labels, { theme: st.theme, accent: st.accent || undefined, mono: $('mono').checked, font: $('font').value || undefined, sizeScale: parseInt($('size').value, 10) / 100, caseMode: $('case').value, shape: st.shape, dates: dateLines(), offsetX: parseFloat($('offx').value) || 0, offsetY: parseFloat($('offy').value) || 0, outlines: $('outlines').checked, icons: $('icons').checked, embed: await embedCss() }) }; }
+  return { sheet, svg: L.pageSvg(sheet, slots, labels, { theme: st.theme, accent: st.accent || undefined, mono: $('mono').checked, font: $('font').value || undefined, sizeScale: parseInt($('size').value, 10) / 100, caseMode: $('case').value, shape: st.shape, dates: dateLines(), dateScale: parseInt($('dsize').value, 10) / 100, dateBold: $('dbold').checked, offsetX: parseFloat($('offx').value) || 0, offsetY: parseFloat($('offy').value) || 0, outlines: $('outlines').checked, icons: $('icons').checked, embed: await embedCss() }) }; }
 function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
 
 function wire() {
   $('preset').addEventListener('change', () => { loadPreset($('preset').value); draw(); });
-  for (const id of ['list', 'sub', 'sheet', 'skip', 'icons', 'mono', 'outlines', 'offx', 'offy', 'font', 'size', 'case', 'dmode', 'dprefix', 'dprefix2', 'dfmt', 'dpick', 'dexp', 'dunit']) $(id).addEventListener('input', draw);
+  for (const id of ['list', 'sub', 'sheet', 'skip', 'icons', 'mono', 'outlines', 'offx', 'offy', 'font', 'size', 'case', 'dmode', 'dprefix', 'dprefix2', 'dsize', 'dbold', 'dfmt', 'dpick', 'dexp', 'dunit']) $(id).addEventListener('input', draw);
   $('customBox').addEventListener('input', draw);
   $('themes').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { setTheme(b.dataset.id); draw(); } });
   $('swatches').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; st.accent = b.dataset.c || null; $('swatches').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(); });
@@ -278,9 +283,41 @@ function wire() {
   };
 }
 init(); wire();
-let saved = null; try { saved = JSON.parse(store.get('lm2') || 'null'); } catch (e) {}
-if (saved && saved.list) { $('list').value = saved.list; $('sub').value = saved.sub || ''; if (L.sheetById(saved.sheet)) $('sheet').value = saved.sheet; setTheme(L.themeById(saved.theme).id); st.accent = saved.accent || null; $('icons').checked = saved.icons !== false; $('mono').checked = !!saved.mono; $('font').value = saved.font || ''; $('size').value = saved.size || 100; $('case').value = saved.case || 'theme'; st.shape = saved.shape || 'sheet'; $('shape').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === st.shape))); document.querySelectorAll('#swatches button').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.c || null) === st.accent))); }
-else { $('preset').value = 'spices'; loadPreset('spices'); }
+/* every control, so a saved design restores exactly */
+const VALS = ['list', 'sub', 'sheet', 'skip', 'offx', 'offy', 'font', 'size', 'case', 'dmode', 'dprefix', 'dprefix2', 'dfmt', 'dpick', 'dexp', 'dunit', 'dsize', 'cPage', 'cW', 'cH', 'cCols', 'cRows', 'cLeft', 'cTop', 'cGx', 'cGy'], CHKS = ['icons', 'mono', 'outlines', 'dbold'];
+function getState() { const o = { theme: st.theme, accent: st.accent, shape: st.shape }; VALS.forEach((id) => { o[id] = $(id).value; }); CHKS.forEach((id) => { o[id] = $(id).checked; }); return o; }
+function setState(o) {
+  VALS.forEach((id) => { if (o[id] === undefined || !$(id)) return; if ($(id).tagName === 'SELECT' && ![...$(id).options].some((x) => x.value === String(o[id]))) return; $(id).value = o[id]; });
+  CHKS.forEach((id) => { if (o[id] !== undefined) $(id).checked = !!o[id]; });
+  setTheme(L.themeById(o.theme).id); st.accent = o.accent || null; st.shape = ['sheet', 'rect', 'pill', 'square', 'circle', 'oval'].includes(o.shape) ? o.shape : 'sheet';
+  $('shape').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === st.shape)));
+  $('swatches').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.c || null) === st.accent)));
+}
+/* named designs in localStorage */
+const DKEY = 'lm-designs'; let designs = [];
+const loadDesigns = () => { try { designs = JSON.parse(store.get(DKEY) || '[]'); if (!Array.isArray(designs)) designs = []; } catch (e) { designs = []; } };
+const esc = (x) => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function storageOk() { try { localStorage.setItem('lm-test', '1'); localStorage.removeItem('lm-test'); return true; } catch (e) { return false; } }
+function renderDesigns() {
+  $('designs').innerHTML = !storageOk() ? '<span class="none">Saving is not available in this browser (private mode?).</span>' : designs.length ? designs.map((d, i) => `<div class="d"><b title="${esc(d.name)}">${esc(d.name)}</b><small>${new Date(d.savedAt).toLocaleDateString(lang)}</small><button class="go" type="button" data-load="${i}">Load</button><button type="button" data-del="${i}" aria-label="Delete ${esc(d.name)}">✕</button></div>`).join('') : '<span class="none">Nothing saved yet. Name your design and press Save.</span>';
+}
+function saveDesign() {
+  const name = $('dname').value.trim() || ($('list').value.split('\n')[0] || 'Design').trim().slice(0, 30) || 'Design';
+  if (!storageOk()) return renderDesigns();
+  const entry = { name, savedAt: Date.now(), state: getState() }, at = designs.findIndex((d) => d.name.toLowerCase() === name.toLowerCase());
+  if (at >= 0) designs[at] = entry; else designs.unshift(entry);
+  designs = designs.slice(0, 30); store.set(DKEY, JSON.stringify(designs)); $('dname').value = ''; renderDesigns();
+}
+$('dsave').onclick = saveDesign;
+$('dname').addEventListener('keydown', (e) => { if (e.key === 'Enter') saveDesign(); });
+$('designs').addEventListener('click', (e) => {
+  const l = e.target.closest('[data-load]'), d = e.target.closest('[data-del]');
+  if (l) { setState(designs[+l.dataset.load].state); $('dname').value = designs[+l.dataset.load].name; draw(); }
+  if (d) { designs.splice(+d.dataset.del, 1); store.set(DKEY, JSON.stringify(designs)); renderDesigns(); }
+});
+loadDesigns(); renderDesigns();
+let saved = null; try { saved = JSON.parse(store.get('lm3') || 'null'); } catch (e) {}
+if (saved && saved.list) setState(saved); else { $('preset').value = 'spices'; loadPreset('spices'); }
 draw();
 })();
 </script>

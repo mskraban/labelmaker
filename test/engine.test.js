@@ -150,3 +150,13 @@ test('black and white mode: only black, white and greys, for every theme, shape 
   const m = L.monoTheme(L.themeById('gold')); assert.deepEqual([m.bg, m.fg, m.accent], ['#ffffff', '#000000', '#000000']); assert.equal(m.font, 'cinzel', 'font is kept');
   assert.ok(L.render(L.sheetById('l7160'), [{ text: 'Flour' }], { theme: 'chalk', mono: false })[0].includes('#22272b'), 'colour mode unchanged');
 });
+
+test('date size and bold: larger and heavier, but never bigger than the label allows', () => {
+  const sheet = L.sheetById('l7163'), size = (svg) => parseFloat(/font-size="([\d.]+)"[^>]*>Packed/.exec(svg)[1]);
+  const mk = (o) => L.render(sheet, [{ text: 'Soup' }], { theme: 'minimal', dates: [{ type: 'text', text: 'Packed 31.10.2026' }], ...o })[0];
+  assert.ok(size(mk({ dateScale: 1.6 })) > size(mk({ dateScale: 1 })), 'bigger'); assert.ok(size(mk({ dateScale: 0.7 })) < size(mk({ dateScale: 1 })), 'smaller');
+  const light = mk({ dateBold: false }), bold = mk({ dateBold: true });
+  assert.ok(/font-weight="500"[^>]*fill-opacity="0.82"[^>]*>Packed/.test(light) && /font-weight="700"[^>]*fill-opacity="1"[^>]*>Packed/.test(bold), 'weight');
+  assert.ok(!/NaN/.test(mk({ dateScale: 9 })), 'absurd scale is clamped');
+  const tiny = L.render(L.sheetById('l7651'), [{ text: 'Soup' }], { theme: 'minimal', dateScale: 2.5, dateBold: true, dates: [{ type: 'write', label: 'Use by' }, { type: 'text', text: 'Packed 31.10.2026' }] })[0]; assert.ok(!/NaN/.test(tiny));
+});
